@@ -1,20 +1,28 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from "react";
+import AppNavigator from './navigation/AppNavigator';
+import { useFonts } from 'expo-font';
 
-export default function App() {
+import UserContext from './UserContext';
+
+const App = () => {
+
+  const [userData, setUserData] = useState(null);
+  const [loaded] = useFonts({
+    "DMBold": require('./assets/fonts/DMSans-Bold.ttf'),
+    "DMMedium": require('./assets/fonts/DMSans-Medium.ttf'),
+    "DMRegular": require('./assets/fonts/DMSans-Regular.ttf'),
+  });
+
+  if (!loaded) {
+    return null;
+  }
+  
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <UserContext.Provider value={{ userData, setUserData }}>
+      <AppNavigator />
+    </UserContext.Provider>
   );
-}
+  
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
