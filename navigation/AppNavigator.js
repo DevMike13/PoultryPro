@@ -9,7 +9,7 @@ import { COLORS } from '../constants/theme';
 import LoginScreen from '../screens/Login/LoginScreen';
 import Onboarding from '../screens/Onboarding/Onboarding';
 import MainScreen from '../screens/Tabs/MainScreen';
-
+import FarmerScreen from '../screens/Tabs2/FarmerScreen';
 
 const Stack = createStackNavigator();
 
@@ -31,6 +31,11 @@ const AppNavigator = () => {
                 <Stack.Screen 
                     name="MainScreen" 
                     component={MainScreen} 
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen 
+                    name="FarmerScreen" 
+                    component={FarmerScreen} 
                     options={{ headerShown: false }}
                 />
             </Stack.Navigator>

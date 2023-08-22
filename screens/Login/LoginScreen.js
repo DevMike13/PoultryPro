@@ -12,7 +12,7 @@ const LoginScreen = () => {
     // ...
 
     // Navigate to the HomeScreen
-    navigation.navigate('MainScreen'); // Replace 'HomeScreen' with the actual screen name
+    navigation.navigate('FarmerScreen'); // Replace 'HomeScreen' with the actual screen name
   };
   return (
     <SafeAreaView style={styles.container}>
