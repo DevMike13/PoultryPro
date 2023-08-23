@@ -14,11 +14,25 @@ const styles = StyleSheet.create({
   headerContainer:{
     width: "100%",
     alignItems: "center",
+    flexDirection: "row",
+    gap: 20
   },
   headerTitle:{
     fontFamily: FONT.bold,
     fontSize: SIZES.xxxLarge,
   },
+  logoutBtn:{
+    backgroundColor: COLORS.tertiary,
+    paddingHorizontal: 20,
+    paddingVertical: 5,
+    borderRadius: SIZES.small
+  },
+  logoutBtnText:{
+    fontFamily: FONT.medium,
+    fontSize: SIZES.small,
+    color: COLORS.lightWhite
+  },
+
   dateContainer:{
     width: "100%",
     alignItems: "flex-start",

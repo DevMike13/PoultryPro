@@ -6,6 +6,11 @@ const styles = StyleSheet.create({
     container:{
         padding: 10
     },
+    filterDateContainer:{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-around"
+    },
     firstContainer:{
         flexDirection: "row",
         paddingVertical: 30,

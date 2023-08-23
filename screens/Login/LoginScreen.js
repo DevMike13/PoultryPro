@@ -1,18 +1,88 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { Text, View, SafeAreaView, TouchableOpacity, Image, TextInput, Modal } from 'react-native';
+import { Text, View, SafeAreaView, TouchableOpacity, Image, TextInput, Modal  } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import firebase from '../../firebase';
 import styles from './login.style';
 
 const LoginScreen = () => {
+
   const navigation = useNavigation();
 
-  const handleLogin = () => {
-    // Perform your login logic here
-    // ...
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  
+  useEffect(() => {
+    const checkUserType = async () => {
+      try {
+        // Check if user type exists in AsyncStorage
+        const userType = await AsyncStorage.getItem('userType');
 
-    // Navigate to the HomeScreen
-    navigation.navigate('FarmerScreen'); // Replace 'HomeScreen' with the actual screen name
+        if (userType === 'owner') {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'MainScreen' }],
+          });
+        } else if (userType === 'farmer') {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'FarmerScreen' }],
+          });
+        }
+      } catch (error) {
+        console.error('AsyncStorage Error:', error);
+      }
+    };
+
+    checkUserType();
+  }, []);
+
+  const handleLogin = async () => {
+    try {
+      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+
+      const userDoc = await firebase.firestore().collection('users').doc(userCredential.user.uid).get();
+      const userType = userDoc.data().userType; // Retrieve user type from Firestore
+
+      // Store user type in AsyncStorage
+      await AsyncStorage.setItem('userType', userType);
+
+      // Navigate to the corresponding screen based on user type
+      if (userType === 'owner') {
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'MainScreen' }],
+        });
+      } else if (userType === 'farmer') {
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'FarmerScreen' }],
+        });
+      } else {
+        // Handle other user types or scenarios
+      }
+    } catch (error) {
+      console.error('Login Error:', error);
+    }
+  };
+
+//   const handleTest = async () => {
+//     const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+//     console.log("User UID:", userCredential.user.uid);
+    
+//     const userDoc = await firebase.firestore().collection('users').doc(userCredential.user.uid).get();
+//     console.log("User Doc:", userDoc.data());
+    
+//     if (userDoc.exists) {
+//       const userType = userDoc.data().userType;
+//       console.log("User Type:", userType);
+//       // Rest of your code
+//     }
+//   };
+
+  const handleRegister = () => {
+    navigation.navigate('RegisterScreen'); // Replace 'HomeScreen' with the actual screen name
   };
   return (
     <SafeAreaView style={styles.container}>
@@ -27,8 +97,8 @@ const LoginScreen = () => {
                         <TextInput
                             style={styles.inInput}
                             placeholder='Email'
-                            // value={email}
-                            // onChangeText={setEmail}
+                            value={email}
+                            onChangeText={setEmail}
                             keyboardType="email-address"
                             textContentType='emailAddress'
                         />
@@ -39,8 +109,8 @@ const LoginScreen = () => {
                         <TextInput
                             style={styles.inInput}
                             placeholder='Password'
-                            // value={password}
-                            // onChangeText={setPassword}
+                            value={password}
+                            onChangeText={setPassword}
                             secureTextEntry={true}
                         />
                     </View>
@@ -63,7 +133,7 @@ const LoginScreen = () => {
                     <View style={styles.regWrapper}>
                         <Text style={styles.regText}>I don't have an account?</Text>
                     </View>
-                    <TouchableOpacity style={styles.regBtn}>
+                    <TouchableOpacity style={styles.regBtn} onPress={handleRegister}>
                         <Text style={styles.regBtnText}>Register Now!</Text>
                     </TouchableOpacity>
                 </View>

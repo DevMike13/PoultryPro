@@ -1,15 +1,36 @@
 import React from 'react'
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView, Text, View } from 'react-native';
+import { SafeAreaView, Text, View, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { useNavigation } from '@react-navigation/native';
+import firebase from '../../../firebase';
 
 import styles from './home.style';
-const Home = () => {
+const Home = ({ navigation }) => {
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('userType');
+  
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    } catch (error) {
+      console.error('Logout Error:', error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
         <View style={styles.headerContainer}>
           <Text style={styles.headerTitle}>
             Poultry Pro
           </Text>
+          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+            <Text style={styles.logoutBtnText}>Logout</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.dateContainer}>
           <Text style={styles.dateText}>
