@@ -7,11 +7,12 @@ const styles = StyleSheet.create({
         width: "100%",
         justifyContent: "center",
         alignItems: "center",
-        marginVertical: 30
+        paddingTop: 30,
+        paddingBottom: 15
     },
     headerTitle:{
         fontFamily: FONT.bold,
-        fontSize: SIZES.xxxLarge,
+        fontSize: SIZES.large,
     },
 });
 

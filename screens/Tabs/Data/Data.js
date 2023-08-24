@@ -48,7 +48,7 @@ const Data = () => {
   return (
     <SafeAreaView style={{backgroundColor: COLORS.lightWhite, flex: 1}}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{ paddingTop: 50, width: "100%", justifyContent: "center" }}>
+        <View style={{ paddingTop: 20, width: "100%", justifyContent: "center" }}>
             <View style={styles.chatsHeader}>
               <View style={styles.titleContainer}>
                 <Text style={styles.headerTitle}>Poultry Pro</Text>

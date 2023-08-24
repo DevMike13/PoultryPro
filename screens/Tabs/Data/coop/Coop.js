@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
 import { FONT, SIZES, COLORS } from '../../../../constants/theme';
 import { BarChart, LineChart } from 'react-native-chart-kit';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -16,7 +16,43 @@ const Coop = () => {
   const [selectedDateTo, setSelectedDateTo] = useState(new Date());
   const [showDatePickerTo, setShowDatePickerTo] = useState(false);
 
-  const [filteredData, setFilteredData] = useState([]);
+  const [filteredMortalityData, setFilteredMortalityData] = useState([]);
+  const [filteredChickenData, setFilteredChickenData] = useState([]);
+
+  const [initialMortalityData, setInitialMortalityData] = useState([]);
+  const [initialChickenData, setInitialChickenData] = useState([]);
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [animation] = useState(new Animated.Value(0));
+
+  const toggleDatePickerVisibility = () => {
+   
+    setIsFilterVisible(!isFilterVisible);
+  };
+
+  useEffect(() => {
+    const newValue = isFilterVisible ? 1 : 0;
+    
+    Animated.timing(animation, {
+      toValue: newValue,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [isFilterVisible]);
+  
+  const filterStyle = {
+    opacity: animation,
+    transform: [
+      {
+        translateY: animation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 0], // Adjust the values as needed
+        }),
+      },
+    ],
+  };
 
   const handleDateChangeFrom = (event, selectedFrom) => {
     if (selectedFrom) {
@@ -45,6 +81,60 @@ const Coop = () => {
     return date.toLocaleString('en-US', options);
   };
 
+  // FETCH CHICKENS PER MONTH
+  const fetchChickenPerMonthData = async () => {
+    try {
+      const firestore = firebase.firestore();
+      const collectionRef = firestore.collection('chickens_added');
+
+      // Adjust the selectedDateFrom to the first day of the selected month
+      const startOfMonth = new Date(selectedDateFrom);
+      startOfMonth.setDate(1);
+
+      // Adjust the selectedDateTo to the last day of the selected month
+      const endOfMonth = new Date(selectedDateTo);
+      endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+      endOfMonth.setDate(0);
+
+      
+      const querySnapshot = await collectionRef
+        .where('date_added', '>=', firebase.firestore.Timestamp.fromDate(startOfMonth))
+        .where('date_added', '<=', firebase.firestore.Timestamp.fromDate(endOfMonth))
+        .orderBy('date_added')
+        .get();
+
+      const fetchedData = [];
+      const groupedData = {};
+
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const dateString = data.date_added;
+        const dateTimestamp = data.date_added.toDate(); // Convert Firestore timestamp to JS Date
+        const yearMonth = `${dateTimestamp.getFullYear()}-${dateTimestamp.getMonth() + 1}`;
+
+        if (!groupedData[yearMonth]) {
+          groupedData[yearMonth] = { count: 0 };
+        }
+        groupedData[yearMonth].count += data.count; // Add the count to the grouped data
+      });
+
+      Object.keys(groupedData).forEach(yearMonth => {
+        fetchedData.push({
+          count: groupedData[yearMonth].count,
+          date_added: new Date(`${yearMonth}-01`), // Create a new Date object for the grouped month
+        });
+      });
+
+      setFilteredChickenData(fetchedData);
+      setIsLoading(false);
+      console.log(fetchedData);
+    } catch (error) {
+      console.error('Error fetching mortality data:', error);
+    }
+  };
+
+
+  // FETCH MORTALITY DATA
   const fetchMortalityData = async () => {
     try {
       const firestore = firebase.firestore();
@@ -59,6 +149,7 @@ const Coop = () => {
       endOfMonth.setMonth(endOfMonth.getMonth() + 1);
       endOfMonth.setDate(0);
 
+      
       const querySnapshot = await collectionRef
         .where('mortality_date', '>=', firebase.firestore.Timestamp.fromDate(startOfMonth))
         .where('mortality_date', '<=', firebase.firestore.Timestamp.fromDate(endOfMonth))
@@ -87,101 +178,236 @@ const Coop = () => {
         });
       });
 
-      setFilteredData(fetchedData);
+      setFilteredMortalityData(fetchedData);
+      setIsLoading(false);
       console.log(fetchedData);
     } catch (error) {
       console.error('Error fetching mortality data:', error);
     }
   };
 
-  useEffect(() => {
-    fetchMortalityData();
-  }, []);
+  // GET INITIAL MORTALITY DATA
+  const fetchMortalityInitialData = async () => {
+    try {
+      const firestore = firebase.firestore();
+      const collectionRef = firestore.collection('chickens_mortality');
   
+      // Adjust the selectedDateFrom to the first day of the selected month
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+  
+      // Adjust the selectedDateTo to the last day of the last month of the current year
+      const currentDate = new Date();
+      const lastMonthOfYear = new Date(currentDate.getFullYear(), 12, 0); // Last day of December of the current year
+  
+      const querySnapshot = await collectionRef
+        .where('mortality_date', '>=', firebase.firestore.Timestamp.fromDate(startOfMonth))
+        .where('mortality_date', '<=', firebase.firestore.Timestamp.fromDate(lastMonthOfYear))
+        .orderBy('mortality_date')
+        .get();
+  
+      const groupedData = {};
+  
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const dateTimestamp = data.mortality_date.toDate();
+        const yearMonth = `${dateTimestamp.getFullYear()}-${dateTimestamp.getMonth() + 1}`;
+  
+        if (!groupedData[yearMonth]) {
+          groupedData[yearMonth] = { count: 0 };
+        }
+        groupedData[yearMonth].count += data.count;
+      });
+  
+      const fetchedData = Object.keys(groupedData).map(yearMonth => ({
+        count: groupedData[yearMonth].count,
+        mortality_date: new Date(`${yearMonth}-01`), // Create a new Date object for the grouped month
+      }));
+  
+      setInitialMortalityData(fetchedData);
+      setIsLoading(false);
+      setSelectedDateTo(lastMonthOfYear);
+      // console.log(fetchedData);
+    } catch (error) {
+      console.error('Error fetching mortality data:', error);
+    }
+  };
+
+  // GET INITIAL MORTALITY DATA
+  const fetchChickenInitialData = async () => {
+    try {
+      const firestore = firebase.firestore();
+      const collectionRef = firestore.collection('chickens_added');
+  
+      // Adjust the selectedDateFrom to the first day of the selected month
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+  
+      // Adjust the selectedDateTo to the last day of the last month of the current year
+      const currentDate = new Date();
+      const lastMonthOfYear = new Date(currentDate.getFullYear(), 12, 0); // Last day of December of the current year
+  
+      const querySnapshot = await collectionRef
+        .where('date_added', '>=', firebase.firestore.Timestamp.fromDate(startOfMonth))
+        .where('date_added', '<=', firebase.firestore.Timestamp.fromDate(lastMonthOfYear))
+        .orderBy('date_added')
+        .get();
+  
+      const groupedData = {};
+  
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const dateTimestamp = data.date_added.toDate();
+        const yearMonth = `${dateTimestamp.getFullYear()}-${dateTimestamp.getMonth() + 1}`;
+  
+        if (!groupedData[yearMonth]) {
+          groupedData[yearMonth] = { count: 0 };
+        }
+        groupedData[yearMonth].count += data.count;
+      });
+  
+      const fetchedData = Object.keys(groupedData).map(yearMonth => ({
+        count: groupedData[yearMonth].count,
+        date_added: new Date(`${yearMonth}-01`), // Create a new Date object for the grouped month
+      }));
+  
+      setInitialChickenData(fetchedData);
+      setIsLoading(false);
+      setSelectedDateTo(lastMonthOfYear);
+      // console.log(fetchedData);
+    } catch (error) {
+      console.error('Error fetching chickens data:', error);
+    }
+  };
+  
+  // useEffect(() => {
+  //   fetchMortalityInitialData();
+  //   fetchChickenInitialData();
+  // }, []);
+  
+  // let initChicken = [];
+
+  // if (filteredMortalityData.length > 0 ) {
+  //   initChicken = filteredMortalityData.map(item => {
+  //     const date = item.mortality_date;
+  //     return `${date.toLocaleString('default', { month: 'short' })}`;
+  //   });
+  //   console.log("test");
+  // } else {
+  //   initChicken = initialMortalityData.map(item => {
+  //     const date = item.mortality_date;
+  //     return `${date.toLocaleString('default', { month: 'short' })}`;
+  //   });
+  // }
+  // console.log(initChicken);
   const chickenCount = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+    labels: filteredChickenData.map(item => {
+      const date = item.date_added;
+      // return `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+      return `${date.toLocaleString('default', { month: 'short' })}`;
+    }),
     datasets: [
       {
-        data: [10, 25, 15, 30],
+        data: filteredChickenData.map(item => item.count),
       },
     ],
   };
 
   const chickenMortality = {
-    labels: filteredData.map(item => {
+    labels: 
+    filteredMortalityData.map(item => {
       const date = item.mortality_date;
-      return `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+      // return `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+      return `${date.toLocaleString('default', { month: 'short' })}`;
     }),
+    // initChicken,
     datasets: [
       {
-        data: filteredData.map(item => item.count),
+        data: filteredMortalityData.map(item => item.count),
       },
     ],
   };
 
-  const initialchickenMortality = {
-    labels: [''],
-    datasets: [
-      {
-        data: filteredData.map(item => item.count),
-      },
-    ],
-  };
+  const getOnlyMonth = new Date(selectedDateFrom);
+  const options = { month: 'short' };
+  const monthName = getOnlyMonth.toLocaleString('default', options);
 
+  const getOnlyMonthTo = new Date(selectedDateTo);
+  const optionsTo = { month: 'short' };
+  const monthNameTo = getOnlyMonthTo.toLocaleString('default', optionsTo);
+
+  const year = selectedDateTo.getFullYear();
+  
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View>
-          <View style={styles.filterDateContainer}>
-            <View style={styles.dateContainer}>
-              <Text style={styles.dateText}>From Date: </Text>
-              <TouchableOpacity onPress={toggleDatePickerFrom} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 20, paddingVertical: 5, flexDirection: "row", gap: 15, borderRadius: SIZES.small }}>
-                <Text style={styles.dateText}>
-                  {formatDate(selectedDateFrom)}
-                </Text>
-                <Ionicons
-                  name="calendar-outline"
-                  size={20}
-                />
-              </TouchableOpacity>
-              {showDatePickerFrom && (
-                <DateTimePicker
-                  value={selectedDateFrom}
-                  mode="date"
-                  display="default"
-                  onChange={handleDateChangeFrom}
-                />
-              )}
+        <TouchableOpacity onPress={toggleDatePickerVisibility} style={styles.filterBtn}>
+          <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: COLORS.lightWhite}}>Filter</Text>
+          <Ionicons
+              name="filter"
+              size={18}
+              color={COLORS.lightWhite}
+          />
+        </TouchableOpacity>
+        { isFilterVisible && (
+          <Animated.View style={[styles.filterContainer, filterStyle]}>
+            <View style={styles.filterDateContainer}>
+              <View style={styles.dateContainer}>
+                <Text style={styles.dateText}>From Date: </Text>
+                <TouchableOpacity onPress={toggleDatePickerFrom} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 20, paddingVertical: 5, flexDirection: "row", gap: 15, borderRadius: SIZES.small }}>
+                  <Text style={styles.dateText}>
+                    {formatDate(selectedDateFrom)}
+                  </Text>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={20}
+                  />
+                </TouchableOpacity>
+                {showDatePickerFrom && (
+                  <DateTimePicker
+                    value={selectedDateFrom}
+                    mode="date"
+                    display="default"
+                    onChange={handleDateChangeFrom}
+                  />
+                )}
+              </View>
+              <View style={styles.dateContainer}>
+                <Text style={styles.dateText}>To Date: </Text>
+                <TouchableOpacity onPress={toggleDatePickerTo} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 20, paddingVertical: 5, flexDirection: "row", gap: 15, borderRadius: SIZES.small }}>
+                  <Text style={styles.dateText}>
+                    {formatDate(selectedDateTo)}
+                  </Text>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={20}
+                  />
+                </TouchableOpacity>
+                {showDatePickerTo && (
+                  <DateTimePicker
+                    value={selectedDateTo}
+                    mode="date"
+                    display="default"
+                    onChange={handleDateChangeTo}
+                  />
+                )}
+              </View>
             </View>
-            <View style={styles.dateContainer}>
-              <Text style={styles.dateText}>To Date: </Text>
-              <TouchableOpacity onPress={toggleDatePickerTo} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 20, paddingVertical: 5, flexDirection: "row", gap: 15, borderRadius: SIZES.small }}>
-                <Text style={styles.dateText}>
-                  {formatDate(selectedDateTo)}
+            <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 20, flexDirection: "row", gap: 80 }}>
+              <TouchableOpacity style={{ backgroundColor: COLORS.tertiary, width: 100, paddingVertical: 5, borderRadius: SIZES.small, alignItems: "center" }} onPress={() => { fetchMortalityData(); fetchChickenPerMonthData(); }}>
+                <Text style={{ fontFamily: FONT.medium, color: COLORS.lightWhite }}>
+                  Apply
                 </Text>
-                <Ionicons
-                  name="calendar-outline"
-                  size={20}
-                />
               </TouchableOpacity>
-              {showDatePickerTo && (
-                <DateTimePicker
-                  value={selectedDateTo}
-                  mode="date"
-                  display="default"
-                  onChange={handleDateChangeTo}
-                />
-              )}
+              <TouchableOpacity style={{ backgroundColor: COLORS.tertiary, width: 110, paddingVertical: 5, borderRadius: SIZES.small, alignItems: "center" }} onPress={() => { fetchMortalityInitialData(); fetchChickenInitialData(); }}>
+                <Text style={{ fontFamily: FONT.medium, color: COLORS.lightWhite }}>
+                  Remove Filter
+                </Text>
+              </TouchableOpacity>
             </View>
-          </View>
-          <View style={{ justifyContent: "center", alignItems: "center", paddingVertical: 20 }}>
-            <TouchableOpacity style={{ backgroundColor: COLORS.tertiary, width: 100, paddingVertical: 5, borderRadius: SIZES.small, alignItems: "center" }} onPress={fetchMortalityData}>
-              <Text style={{ fontFamily: FONT.medium, color: COLORS.lightWhite }}>
-                Filter
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+            
+          </Animated.View>
+        )}
         <View style={styles.firstContainer}>
           {/* CYCLE */}
           <View style={styles.cycleContainer}>
@@ -218,23 +444,28 @@ const Coop = () => {
         <View style={styles.chartContainer}>
           <View style={styles.chartHeaderContainer}>
             <Text style={styles.chartTitle}>No. of Boiler Chicken</Text>
-            <Text style={styles.chartDate}>Jan - Apr 2023</Text>
+            <Text style={styles.chartDate}>{monthName} - {monthNameTo} {year}</Text>
           </View>
-          <BarChart
-            data={chickenCount}
-            width={390}
-            height={220}
-            yAxisLabel=""
-            yAxisSuffix=""
-            chartConfig={{
-              backgroundColor: '#ffffff',
-              backgroundGradientFrom: '#ffffff',
-              backgroundGradientTo: '#ffffff',
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            }}
-            style={styles.chart}
-          />
+          {filteredChickenData.length > 0 ? (
+            <BarChart
+              data={chickenCount}
+              width={390}
+              height={220}
+              yAxisLabel=""
+              yAxisSuffix=""
+              chartConfig={{
+                backgroundColor: '#ffffff',
+                backgroundGradientFrom: '#ffffff',
+                backgroundGradientTo: '#ffffff',
+                decimalPlaces: 0,
+                color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
+              }}
+              style={styles.chart}
+            />
+          ) : (
+            <ActivityIndicator size="large" color="blue" />
+          )}
+         
         </View>
 
         {/* Death Graph */}
@@ -242,9 +473,9 @@ const Coop = () => {
          <View style={styles.chartContainer}>
           <View style={styles.chartHeaderContainer}>
             <Text style={styles.chartTitle}>No. of Chicken Deaths</Text>
-            {/* <Text style={styles.chartDate}>Jan - Apr 2023</Text> */}
+            <Text style={styles.chartDate}>{monthName} - {monthNameTo} {year}</Text>
           </View>
-          {filteredData.length > 0 ? (
+          {filteredMortalityData.length > 0 ? (
             <LineChart
             data={chickenMortality}
             width={390}
@@ -256,12 +487,12 @@ const Coop = () => {
               backgroundGradientFrom: '#ffffff',
               backgroundGradientTo: '#ffffff',
               decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
             }}
             style={styles.chart}
           />
           ) : (
-            <Text>No data available</Text>
+            <ActivityIndicator size="large" color="blue" />
           )}
         </View>
       </ScrollView>

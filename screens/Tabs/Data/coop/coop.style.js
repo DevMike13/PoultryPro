@@ -4,7 +4,16 @@ import { COLORS, FONT, SHADOWS, SIZES } from "../../../../constants/theme";
 
 const styles = StyleSheet.create({
     container:{
-        padding: 10
+        padding: 10,
+        marginTop: 10
+    },
+    filterContainer:{
+        backgroundColor: COLORS.lightWhite,
+        paddingVertical: 20,
+        marginTop: 10,
+        borderRadius: SIZES.medium,
+        marginHorizontal: 5,
+        ...SHADOWS.medium
     },
     filterDateContainer:{
         flexDirection: "row",
@@ -13,7 +22,7 @@ const styles = StyleSheet.create({
     },
     firstContainer:{
         flexDirection: "row",
-        paddingVertical: 30,
+        paddingVertical: 10,
         paddingHorizontal: 5,
         gap: 5
     },
@@ -63,6 +72,20 @@ const styles = StyleSheet.create({
         fontFamily: FONT.regular,
         fontSize: SIZES.small,
         marginLeft: "auto"
+    },
+    dateText:{
+        fontFamily: FONT.medium,
+        fontSize: SIZES.medium
+    },
+    filterBtn:{
+        alignSelf: "flex-end", 
+        flexDirection: "row", 
+        gap: 10, 
+        backgroundColor: COLORS.tertiary, 
+        paddingHorizontal: 10, 
+        paddingVertical: 5, 
+        borderRadius: SIZES.small, 
+        alignItems: "center"
     }
 
 });

@@ -21,7 +21,7 @@ const Harvest = () => {
   return (
     <SafeAreaView style={styles.container}>
         <View style={styles.chartContainer}>
-          <Text style={styles.headerTitle}>Mortality Rate</Text>
+          <Text style={styles.headerTitle}>Good & Reject Chicken</Text>
           <PieChart
             data={data}
             width={400}
