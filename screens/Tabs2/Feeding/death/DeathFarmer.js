@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, Text, View, TouchableOpacity, ActivityIndicator, ToastAndroid } from 'react-native';
 import { FONT, SIZES, COLORS } from '../../../../constants/theme';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { format } from 'date-fns';
 
 import firebase from '../../../../firebase';
 
@@ -17,6 +18,9 @@ const DeathFarmer = () => {
   const [chickenData, setChickenData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [batchNo, setBatchNo] = useState('');
+  const [btData, setBtData] = useState([]);
+
   const successToast = () => {
       //function to make Toast With Duration
       ToastAndroid.showWithGravity('Mortality Added', 
@@ -25,56 +29,36 @@ const DeathFarmer = () => {
     );
   };
 
-  const fetchChickensData = async () => {
-    try {
-      const collectionRef = firebase.firestore().collection('chickens');
-      const querySnapshot = await collectionRef.get();
-
-      const fetchedChickensData = [];
-      querySnapshot.forEach((doc) => {
-        fetchedChickensData.push({ id: doc.id, ...doc.data() });
-      });
-
-      // Update the state with fetched data
-      setChickenData(fetchedChickensData);
-      setIsLoading(false); // Set loading to false when data is fetched
-    } catch (error) {
-      console.error('Error fetching chickens data:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchChickensData();
-  }, []);
-  
   const addMortalityData = async () => {
     try {
       const firestore = firebase.firestore();
       const batch = firestore.batch();
-      
-      const chickenDocRef = firestore.collection('chickens').doc('jkrXmOvj1dOtfDdC1992'); // Replace with the actual document ID
-      batch.update(chickenDocRef, { count: firebase.firestore.FieldValue.increment(-counter) });
-
+  
+      const chickenDocRef = firestore.collection('batch').doc(`${batchNo}`);
+      batch.update(chickenDocRef, { no_of_chicken: firebase.firestore.FieldValue.increment(-counter) });
+  
       // Add a new document to the chickens_mortality collection
-      const mortalityCollectionRef = firestore.collection('chickens_mortality');
+      const mortalityCollectionRef = firestore.collection('mortality');
       const newMortalityData = {
-        count: counter,
+        batch_no: batchNo, // Assuming you have the batchNo available
+        mortality_count: counter,
         mortality_date: firebase.firestore.Timestamp.fromDate(selectedDate),
       };
       batch.set(mortalityCollectionRef.doc(), newMortalityData);
-
-      if(counter >= 0){
+  
+      if (counter >= 0) {
         await batch.commit();
-        fetchChickensData();
+        fetchBatchByBatchNo(batchNo); // Fetch batch data after the update
         successToast();
       }
-      
+  
       console.log('Mortality data added successfully');
     } catch (error) {
       console.error('Error adding mortality data:', error);
+      console.log(batchNo);
     }
   };
-
+  
   const handleDateChange = (event, selected) => {
     if (selected) {
       setSelectedDate(selected);
@@ -106,20 +90,153 @@ const DeathFarmer = () => {
     }
   };
 
+  const fetchBatchCounter = async () => {
+    const db = firebase.firestore();
+  
+    try {
+      const counterDocRef = db.collection('meta').doc('counters');
+      const counterDoc = await counterDocRef.get();
+  
+      if (counterDoc.exists) {
+        const batchCounterValue = counterDoc.data().batchCounter - 1;
+        setBatchNo(batchCounterValue);
+        console.log(batchCounterValue);
+      } else {
+        console.log('Counters document does not exist.');
+      }
+    } catch (error) {
+      console.error('Error fetching batch counter:', error);
+    }
+  };
+
+  const fetchBatchByBatchNo = async (batchNo) => {
+    const db = firebase.firestore();
+  
+    try {
+      const batchQuery = await db.collection('batch').where('batch_no', '==', batchNo).get();
+  
+      if (!batchQuery.empty) {
+        batchQuery.forEach((doc) => {
+          const batchData = doc.data();
+          setBtData(batchData);
+          console.log('Batch Data :', batchData);
+          setIsLoading(false);
+        });
+      } else {
+        console.log('No batch documents found for the specified batch_no.');
+      }
+    } catch (error) {
+      console.error('Error fetching batch:', error);
+    }
+  };
+
+  const calculateDaysDifference = (startDate, endDate) => {
+    
+    // Calculate the time difference in milliseconds between the two dates
+    const timeDiff = endDate - startDate;
+  
+    // Convert the time difference to days
+    const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
+  
+    return daysDiff;
+  }
+  
+  
+  const formatFirestoreTimestamp = (timestamp) => {
+    const date = timestamp.toDate();
+    return format(date, 'MMM d, yyyy');
+  };
+
+  useEffect(() => {
+    fetchBatchByBatchNo(batchNo); // Fetch batch data based on the updated batchNo
+  }, [batchNo]); // Trigger when batchNo changes
+
+  useEffect(() => {
+    // Fetch the batch counter value and update batchNo state
+    fetchBatchCounter();
+  }, []);
+
+  const startDate = btData.cycle_started ? btData.cycle_started.toDate() : null;
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() + 1)
+  const daysBetweenRounded = startDate ? Math.round(calculateDaysDifference(startDate, endDate)) : null;
+  
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.contentContainer}>
-        <Text style={styles.contentHeader}>Total number of chicken</Text>
-        {isLoading ? (
-          <ActivityIndicator size="large" color="blue" />
-        ) : (
-          chickenData.map((chicken) => (
-            <Text key={chicken.id} style={styles.contentValueText}> {chicken.count.toLocaleString()} </Text>
-          ))
-        )}
-        
+      <View style={styles.firstContainer}>
+        {/* CYCLE */}
+        <View style={styles.cycleContainer}>
+          
+            {isLoading ? (
+              <ActivityIndicator size="large" color="blue" />
+            ) : (
+              <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{btData.batch_no}</Text>
+            )}
+         
+          <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
+            <Ionicons
+                name="logo-buffer"
+                size={18}
+            />
+            <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
+              Batch No.
+            </Text>
+          </View>
+        </View>
+
+        {/* HUMIDITY AND TEMP */}
+        <View style={styles.tempHumidityContainer1}>
+          <View>
+            <Text style={{ fontFamily: FONT.bold}}>
+              Cycle Duration
+            </Text>
+          </View>
+          <View style={styles.tempHumidityContainer}>
+            <View style={styles.tempHumidityContent}>
+              {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>70%</Text> */}
+              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#FF5733" }}>Start</Text>
+              {isLoading ? (
+                <ActivityIndicator size="large" color="blue" />
+              ) : (
+                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatFirestoreTimestamp(btData.cycle_started)}</Text>
+              )}
+            </View>
+            <View style={styles.tempHumidityContent}>
+              {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>32 C°</Text> */}
+              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#ff0000" }}>End</Text>
+              {isLoading ? (
+                <ActivityIndicator size="large" color="blue" />
+              ) : (
+                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatFirestoreTimestamp(btData.cycle_expected_end_date)}</Text>
+              )}
+              
+            </View>
+          </View>
+        </View>
       </View>
       <View style={styles.contentContainer}>
+        <View style={styles.dateContainer}>
+          {/* <Text style={styles.dateText}>Date: </Text>
+          <TouchableOpacity onPress={toggleDatePicker} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 20, paddingVertical: 5, flexDirection: "row", gap: 15, borderRadius: SIZES.small }}>
+            <Text style={styles.dateText}>
+              {formatDate(selectedDate)}
+            </Text>
+            <Ionicons
+              name="calendar-outline"
+              size={20}
+            />
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="date"
+              display="default"
+              onChange={handleDateChange}
+            />
+          )} */}
+          <Text style={styles.dateText}>{`Your're in day ${daysBetweenRounded} in current cycle.`}</Text>
+          <View style={styles.divider}></View>
+        </View>
         <Text style={styles.contentHeader}>Chicken died today</Text>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 60, marginTop: 20}}>
           <TouchableOpacity style={styles.addAndMinBtn} onPress={incrementCounter}>
@@ -147,36 +264,24 @@ const DeathFarmer = () => {
           </Text>
         </TouchableOpacity>
 
-        <View style={styles.dateContainer}>
-          <Text style={styles.dateText}>Date: </Text>
-          <TouchableOpacity onPress={toggleDatePicker} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 20, paddingVertical: 5, flexDirection: "row", gap: 15, borderRadius: SIZES.small }}>
-            <Text style={styles.dateText}>
-              {formatDate(selectedDate)}
-            </Text>
-            <Ionicons
-              name="calendar-outline"
-              size={20}
-            />
-          </TouchableOpacity>
-          {showDatePicker && (
-            <DateTimePicker
-              value={selectedDate}
-              mode="date"
-              display="default"
-              onChange={handleDateChange}
-            />
-          )}
+        <View style={{ width: "100%", flexDirection : "row", justifyContent: "space-around", marginTop: 50 }}>
+          <View style={styles.contentContainer}>
+            <Text style={styles.contentHeader}>Total Population</Text>
+            {isLoading ? (
+              <ActivityIndicator size="large" color="blue" />
+            ) : (
+              <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
+            )}
+          </View>
+          <View style={styles.contentContainer}>
+            <Text style={styles.contentHeader}>Population after </Text>
+            {isLoading ? (
+              <ActivityIndicator size="large" color="blue" />
+            ) : (
+              <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
+            )}
+          </View>
         </View>
-      </View>
-      <View style={styles.contentContainer}>
-        <Text style={styles.contentHeader}>Total Population</Text>
-        {isLoading ? (
-          <ActivityIndicator size="large" color="blue" />
-        ) : (
-          chickenData.map((chicken) => (
-            <Text key={chicken.id} style={styles.contentValueText}> {chicken.count.toLocaleString()} </Text>
-          ))
-        )}
       </View>
     </SafeAreaView>
   )

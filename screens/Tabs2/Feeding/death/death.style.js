@@ -8,21 +8,58 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 30,
     },
+    firstContainer:{
+        flexDirection: "row",
+        paddingVertical: 10,
+        paddingHorizontal: 5,
+        gap: 5
+    },
+    cycleContainer:{
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: SIZES.small,
+        paddingHorizontal: SIZES.small,
+        backgroundColor: COLORS.lightWhite,
+        borderRadius: SIZES.medium,
+        ...SHADOWS.medium
+    },
+    tempHumidityContainer1:{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        backgroundColor: COLORS.lightWhite,
+        borderRadius: SIZES.medium,
+        ...SHADOWS.medium,
+    },
+    tempHumidityContainer:{
+        flex: 1,
+        flexDirection: "row",
+        gap: 10,
+    },
+
+    tempHumidityContent:{
+        width: "50%",
+        alignItems: "center",
+        justifyContent: "center"
+    },
     contentContainer:{
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: COLORS.lightWhite,
         paddingVertical: 20,
+        paddingHorizontal: 10,
         borderRadius: SIZES.medium,
         ...SHADOWS.medium
     },
     contentHeader:{
         fontFamily: FONT.bold,
-        fontSize: SIZES.large
+        fontSize: SIZES.medium
     },
     contentValueText:{
         fontFamily: FONT.medium,
-        fontSize: SIZES.large
+        fontSize: SIZES.small   
     },
 
     addAndMinBtn:{
@@ -47,13 +84,19 @@ const styles = StyleSheet.create({
     },
 
     dateContainer:{
-        flexDirection: "row",
+        // flexDirection: "row",
         alignItems: "center",
-        marginTop: 60
+        marginBottom: 50,
+        gap: 10
     },
     dateText:{
         fontFamily: FONT.medium,
         fontSize: SIZES.medium
+    },
+    divider:{
+        width: 100,
+        height: 2,
+        backgroundColor: COLORS.primary
     }
 });
 
