@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView, Text, View, TouchableOpacity, ActivityIndicator, ToastAndroid } from 'react-native';
-import { FONT, SIZES, COLORS } from '../../../../constants/theme';
+import { SafeAreaView, Text, View, TouchableOpacity, ActivityIndicator, ToastAndroid, Modal } from 'react-native';
+import { BlurView } from 'expo-blur';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
 
-import firebase from '../../../../firebase';
-
+import { FONT, SIZES, COLORS } from '../../../../constants/theme';
 import styles from './death.style';
+
+import firebase from '../../../../firebase';
 
 const DeathFarmer = () => {
 
@@ -20,6 +21,54 @@ const DeathFarmer = () => {
 
   const [batchNo, setBatchNo] = useState('');
   const [btData, setBtData] = useState([]);
+
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
+
+  const ConfirmationModal = () => {
+    return (
+      <Modal
+        visible={isConfirmationModalVisible}
+        transparent={true}
+        animationType="fade"
+      >
+        <BlurView intensity={20} style={styles.overlay}></BlurView>
+        {/* Modal content */}
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>
+              Are you sure you want to add this mortality?
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.yesButton]}
+                onPress={() => {
+                  addMortalityData();
+                  resetCounter();
+                  setIsConfirmationModalVisible(false);
+                }}
+              >
+                <Text style={styles.modalButtonText}>Yes</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.noButton]}
+                onPress={() => {
+                  resetCounter();
+                  setIsConfirmationModalVisible(false);
+                }}
+              >
+                <Text style={styles.modalButtonText}>No</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+    );
+  };
+
+  const handleConfirmModal = () => {
+    setIsConfirmationModalVisible(true);
+  };
 
   const successToast = () => {
       //function to make Toast With Duration
@@ -50,6 +99,7 @@ const DeathFarmer = () => {
         await batch.commit();
         fetchBatchByBatchNo(batchNo); // Fetch batch data after the update
         successToast();
+        setSelectedDate(new Date());
       }
   
       console.log('Mortality data added successfully');
@@ -163,6 +213,7 @@ const DeathFarmer = () => {
   
   return (
     <SafeAreaView style={styles.container}>
+      <ConfirmationModal/>
       <View style={styles.firstContainer}>
         {/* CYCLE */}
         <View style={styles.cycleContainer}>
@@ -214,30 +265,47 @@ const DeathFarmer = () => {
           </View>
         </View>
       </View>
-      <View style={styles.contentContainer}>
-        <View style={styles.dateContainer}>
-          {/* <Text style={styles.dateText}>Date: </Text>
-          <TouchableOpacity onPress={toggleDatePicker} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 20, paddingVertical: 5, flexDirection: "row", gap: 15, borderRadius: SIZES.small }}>
-            <Text style={styles.dateText}>
-              {formatDate(selectedDate)}
-            </Text>
+
+      <View style={styles.firstContainer}>
+        {/* CYCLE */}
+        <View style={styles.cycleContainer}>
+          
+            {isLoading ? (
+              <ActivityIndicator size="large" color="blue" />
+            ) : (
+              <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{daysBetweenRounded}</Text>
+            )}
+         
+          <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
             <Ionicons
-              name="calendar-outline"
-              size={20}
+                name="sunny"
+                size={18}
             />
-          </TouchableOpacity>
-          {showDatePicker && (
-            <DateTimePicker
-              value={selectedDate}
-              mode="date"
-              display="default"
-              onChange={handleDateChange}
-            />
-          )} */}
-          <Text style={styles.dateText}>{`Your're in day ${daysBetweenRounded} in current cycle.`}</Text>
-          <View style={styles.divider}></View>
+            <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
+              Day No.   
+            </Text>
+          </View>
         </View>
+
+        {/* HUMIDITY AND TEMP */}
+        <View style={[styles.tempHumidityContainer1, {gap: 10}]}>
+          <View>
+            <Text style={{ fontFamily: FONT.bold}}>
+              Total Population
+            </Text>
+          </View>
+          <View style={styles.tempHumidityContainer}>
+            {isLoading ? (
+              <ActivityIndicator size="large" color="blue" />
+            ) : (
+              <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
+            )}
+          </View>
+        </View>
+      </View>
+      <View style={styles.contentContainer}>
         <Text style={styles.contentHeader}>Chicken died today</Text>
+        <View style={styles.divider}></View>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 60, marginTop: 20}}>
           <TouchableOpacity style={styles.addAndMinBtn} onPress={incrementCounter}>
             <Ionicons
@@ -256,15 +324,14 @@ const DeathFarmer = () => {
           </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.confirmBtn} onPress={() =>{
-          resetCounter();
-          addMortalityData();
+          handleConfirmModal();
         }}>
           <Text style={styles.confirmBtnText}>
             Confirm
           </Text>
         </TouchableOpacity>
 
-        <View style={{ width: "100%", flexDirection : "row", justifyContent: "space-around", marginTop: 50 }}>
+        {/* <View style={{ width: "100%", flexDirection : "row", justifyContent: "space-around", marginTop: 50 }}>
           <View style={styles.contentContainer}>
             <Text style={styles.contentHeader}>Total Population</Text>
             {isLoading ? (
@@ -281,7 +348,30 @@ const DeathFarmer = () => {
               <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
             )}
           </View>
-        </View>
+        </View> */}
+
+        <View style={styles.dateContainer}>
+          <Text style={styles.dateText}>Date: </Text>
+          <TouchableOpacity onPress={toggleDatePicker} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 20, paddingVertical: 5, flexDirection: "row", gap: 15, borderRadius: SIZES.small }}>
+            <Text style={styles.dateText}>
+              {formatDate(selectedDate)}
+            </Text>
+            <Ionicons
+              name="calendar-outline"
+              size={20}
+            />
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="date"
+              display="default"
+              onChange={handleDateChange}
+            />
+          )}
+          {/* <Text style={styles.dateText}>{`Your're in day ${daysBetweenRounded} in current cycle.`}</Text>
+          <View style={styles.divider}></View> */}
+        </View> 
       </View>
     </SafeAreaView>
   )

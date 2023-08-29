@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
-import { FONT, SIZES, COLORS } from '../../../../constants/theme';
+import { FONT, SIZES, COLORS, SHADOWS } from '../../../../constants/theme';
 import { BarChart, LineChart } from 'react-native-chart-kit';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -27,9 +27,38 @@ const Coop = () => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [animation] = useState(new Animated.Value(0));
 
-  const toggleDatePickerVisibility = () => {
-   
-    setIsFilterVisible(!isFilterVisible);
+  // NEW
+  const [batchList, setBatchList] = useState([]);
+  const [batchNoList, setBatchNoList] = useState([]);
+
+  const [selectedOption, setSelectedOption] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const [chickMort, setChickMort] = useState([]);
+
+  const [mortLabel, setMortLabel] = useState([]);
+  const [mortCount, setMortCount] = useState([]);
+  
+  const [mortalityChartData, setMortalityChartData] = useState({
+    labels: [],
+    datasets: [
+      {
+        data: [],
+      },
+    ],
+  });
+  
+  const formatDate = (timestamp) => {
+    if (timestamp && timestamp instanceof firebase.firestore.Timestamp) {
+      const date = timestamp.toDate(); // Convert Firestore timestamp to Date
+      const options = { month: 'short', day: 'numeric' };
+      return date.toLocaleDateString('en-US', options);
+    }
+    return '';
+  };
+  
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
   };
 
   useEffect(() => {
@@ -54,302 +83,133 @@ const Coop = () => {
     ],
   };
 
-  const handleDateChangeFrom = (event, selectedFrom) => {
-    if (selectedFrom) {
-      setSelectedDateFrom(selectedFrom);
-    }
-    setShowDatePickerFrom(Platform.OS === 'ios');
-  };
 
-  const toggleDatePickerFrom = () => {
-    setShowDatePickerFrom(!showDatePickerFrom);
-  };
+  const getBatchList = () => {
+    // Reference to the Firestore collection
+    const collectionRef = firebase.firestore().collection('batch');
 
-  const handleDateChangeTo = (event, selectedTo) => {
-    if (selectedTo) {
-      setSelectedDateTo(selectedTo);
-    }
-    setShowDatePickerTo(Platform.OS === 'ios');
-  };
+    // Fetch the data
+    collectionRef.get().then((querySnapshot) => {
 
-  const toggleDatePickerTo = () => {
-    setShowDatePickerTo(!showDatePickerTo);
-  };
+      const fetchedBatchList = [];
+      const fetchedBatchNoList = [];
 
-  const formatDate = date => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return date.toLocaleString('en-US', options);
-  };
-
-  // FETCH CHICKENS PER MONTH
-  const fetchChickenPerMonthData = async () => {
-    try {
-      const firestore = firebase.firestore();
-      const collectionRef = firestore.collection('chickens_added');
-
-      // Adjust the selectedDateFrom to the first day of the selected month
-      const startOfMonth = new Date(selectedDateFrom);
-      startOfMonth.setDate(1);
-
-      // Adjust the selectedDateTo to the last day of the selected month
-      const endOfMonth = new Date(selectedDateTo);
-      endOfMonth.setMonth(endOfMonth.getMonth() + 1);
-      endOfMonth.setDate(0);
-
-      
-      const querySnapshot = await collectionRef
-        .where('date_added', '>=', firebase.firestore.Timestamp.fromDate(startOfMonth))
-        .where('date_added', '<=', firebase.firestore.Timestamp.fromDate(endOfMonth))
-        .orderBy('date_added')
-        .get();
-
-      const fetchedData = [];
-      const groupedData = {};
-
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        const dateString = data.date_added;
-        const dateTimestamp = data.date_added.toDate(); // Convert Firestore timestamp to JS Date
-        const yearMonth = `${dateTimestamp.getFullYear()}-${dateTimestamp.getMonth() + 1}`;
-
-        if (!groupedData[yearMonth]) {
-          groupedData[yearMonth] = { count: 0 };
-        }
-        groupedData[yearMonth].count += data.count; // Add the count to the grouped data
+      querySnapshot.forEach((doc) => {
+        const batchData = doc.data();
+        fetchedBatchList.push(batchData);
+        fetchedBatchNoList.push(batchData.batch_no); 
       });
-
-      Object.keys(groupedData).forEach(yearMonth => {
-        fetchedData.push({
-          count: groupedData[yearMonth].count,
-          date_added: new Date(`${yearMonth}-01`), // Create a new Date object for the grouped month
-        });
-      });
-
-      setFilteredChickenData(fetchedData);
-      setIsLoading(false);
-      console.log(fetchedData);
-    } catch (error) {
-      console.error('Error fetching mortality data:', error);
-    }
+      setBatchList(fetchedBatchList); 
+      setBatchNoList(fetchedBatchNoList); 
+      setSelectedOption(fetchedBatchNoList[0]);
+      fetchMortalityData(fetchedBatchNoList[0]);
+      setIsLoading(false); 
+      // console.log(selectedOption);
+    }); 
   };
 
+  useEffect(() => {
+      getBatchList()
+  }, []);
 
-  // FETCH MORTALITY DATA
-  const fetchMortalityData = async () => {
-    try {
-      const firestore = firebase.firestore();
-      const collectionRef = firestore.collection('chickens_mortality');
-
-      // Adjust the selectedDateFrom to the first day of the selected month
-      const startOfMonth = new Date(selectedDateFrom);
-      startOfMonth.setDate(1);
-
-      // Adjust the selectedDateTo to the last day of the selected month
-      const endOfMonth = new Date(selectedDateTo);
-      endOfMonth.setMonth(endOfMonth.getMonth() + 1);
-      endOfMonth.setDate(0);
-
-      
-      const querySnapshot = await collectionRef
-        .where('mortality_date', '>=', firebase.firestore.Timestamp.fromDate(startOfMonth))
-        .where('mortality_date', '<=', firebase.firestore.Timestamp.fromDate(endOfMonth))
-        .orderBy('mortality_date')
-        .get();
-
-      const fetchedData = [];
-      const groupedData = {};
-
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        const dateString = data.mortality_date;
-        const dateTimestamp = data.mortality_date.toDate(); // Convert Firestore timestamp to JS Date
-        const yearMonth = `${dateTimestamp.getFullYear()}-${dateTimestamp.getMonth() + 1}`;
-
-        if (!groupedData[yearMonth]) {
-          groupedData[yearMonth] = { count: 0 };
-        }
-        groupedData[yearMonth].count += data.count; // Add the count to the grouped data
-      });
-
-      Object.keys(groupedData).forEach(yearMonth => {
-        fetchedData.push({
-          count: groupedData[yearMonth].count,
-          mortality_date: new Date(`${yearMonth}-01`), // Create a new Date object for the grouped month
-        });
-      });
-
-      setFilteredMortalityData(fetchedData);
-      setIsLoading(false);
-      console.log(fetchedData);
-    } catch (error) {
-      console.error('Error fetching mortality data:', error);
-    }
-  };
-
-  // GET INITIAL MORTALITY DATA
-  const fetchMortalityInitialData = async () => {
-    try {
-      const firestore = firebase.firestore();
-      const collectionRef = firestore.collection('chickens_mortality');
-  
-      // Adjust the selectedDateFrom to the first day of the selected month
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-  
-      // Adjust the selectedDateTo to the last day of the last month of the current year
-      const currentDate = new Date();
-      const lastMonthOfYear = new Date(currentDate.getFullYear(), 12, 0); // Last day of December of the current year
-  
-      const querySnapshot = await collectionRef
-        .where('mortality_date', '>=', firebase.firestore.Timestamp.fromDate(startOfMonth))
-        .where('mortality_date', '<=', firebase.firestore.Timestamp.fromDate(lastMonthOfYear))
-        .orderBy('mortality_date')
-        .get();
-  
-      const groupedData = {};
-  
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        const dateTimestamp = data.mortality_date.toDate();
-        const yearMonth = `${dateTimestamp.getFullYear()}-${dateTimestamp.getMonth() + 1}`;
-  
-        if (!groupedData[yearMonth]) {
-          groupedData[yearMonth] = { count: 0 };
-        }
-        groupedData[yearMonth].count += data.count;
-      });
-  
-      const fetchedData = Object.keys(groupedData).map(yearMonth => ({
-        count: groupedData[yearMonth].count,
-        mortality_date: new Date(`${yearMonth}-01`), // Create a new Date object for the grouped month
-      }));
-  
-      setInitialMortalityData(fetchedData);
-      setIsLoading(false);
-      setSelectedDateTo(lastMonthOfYear);
-      // console.log(fetchedData);
-    } catch (error) {
-      console.error('Error fetching mortality data:', error);
-    }
-  };
-
-  // GET INITIAL MORTALITY DATA
-  const fetchChickenInitialData = async () => {
-    try {
-      const firestore = firebase.firestore();
-      const collectionRef = firestore.collection('chickens_added');
-  
-      // Adjust the selectedDateFrom to the first day of the selected month
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-  
-      // Adjust the selectedDateTo to the last day of the last month of the current year
-      const currentDate = new Date();
-      const lastMonthOfYear = new Date(currentDate.getFullYear(), 12, 0); // Last day of December of the current year
-  
-      const querySnapshot = await collectionRef
-        .where('date_added', '>=', firebase.firestore.Timestamp.fromDate(startOfMonth))
-        .where('date_added', '<=', firebase.firestore.Timestamp.fromDate(lastMonthOfYear))
-        .orderBy('date_added')
-        .get();
-  
-      const groupedData = {};
-  
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
-        const dateTimestamp = data.date_added.toDate();
-        const yearMonth = `${dateTimestamp.getFullYear()}-${dateTimestamp.getMonth() + 1}`;
-  
-        if (!groupedData[yearMonth]) {
-          groupedData[yearMonth] = { count: 0 };
-        }
-        groupedData[yearMonth].count += data.count;
-      });
-  
-      const fetchedData = Object.keys(groupedData).map(yearMonth => ({
-        count: groupedData[yearMonth].count,
-        date_added: new Date(`${yearMonth}-01`), // Create a new Date object for the grouped month
-      }));
-  
-      setInitialChickenData(fetchedData);
-      setIsLoading(false);
-      setSelectedDateTo(lastMonthOfYear);
-      // console.log(fetchedData);
-    } catch (error) {
-      console.error('Error fetching chickens data:', error);
-    }
-  };
-  
   // useEffect(() => {
-  //   fetchMortalityInitialData();
-  //   fetchChickenInitialData();
-  // }, []);
+  //   if (batchNoList.length > 0) {
+  //     setSelectedOption(batchNoList[0]);
+  //   }
+  // }, [batchNoList]);
+
+  // useEffect(() => {
+  //   fetchMortalityData(selectedOption)
+  // }, [batchNoList]);
   
-  // let initChicken = [];
-
-  // if (filteredMortalityData.length > 0 ) {
-  //   initChicken = filteredMortalityData.map(item => {
-  //     const date = item.mortality_date;
-  //     return `${date.toLocaleString('default', { month: 'short' })}`;
-  //   });
-  //   console.log("test");
-  // } else {
-  //   initChicken = initialMortalityData.map(item => {
-  //     const date = item.mortality_date;
-  //     return `${date.toLocaleString('default', { month: 'short' })}`;
-  //   });
-  // }
-  // console.log(initChicken);
-  const chickenCount = {
-    labels: filteredChickenData.map(item => {
-      const date = item.date_added;
-      // return `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
-      return `${date.toLocaleString('default', { month: 'short' })}`;
-    }),
+  const handleOptionSelect = (no) => {
+    setSelectedOption(no);
+    fetchMortalityData(no);
+    setIsDropdownOpen(false);
+  };
+  
+  const fetchMortalityData = async (selectedBatchNo) => {
+    try {
+      const firestore = firebase.firestore();
+      const collectionRef = firestore.collection('mortality');
+  
+      const querySnapshot = await collectionRef
+        .where('batch_no', '==', parseInt(selectedBatchNo))
+        .orderBy('mortality_date')
+        .get();
+  
+      const mortalityData = querySnapshot.docs.map((doc) => doc.data());
+  
+      const mergedData = {};
+      const mergedLabels = {};
+  
+      mortalityData.forEach((item) => {
+        const date = formatDate(item.mortality_date);
+  
+        if (!mergedData[date]) {
+          mergedData[date] = 0;
+          mergedLabels[date] = date;
+        }
+  
+        mergedData[date] += item.mortality_count;
+      });
+  
+      const mergedMortalityData = Object.keys(mergedData).map((date) => ({
+        mortality_date: date,
+        mortality_count: mergedData[date],
+      }));
+  
+      setChickMort(mergedMortalityData);
+  
+      const formattedMortalityLabels = Object.keys(mergedLabels).map((date) => mergedLabels[date]);
+      setMortLabel(formattedMortalityLabels);
+  
+      const mortalityCounts = Object.keys(mergedData).map((date) => mergedData[date]);
+      setMortCount(mortalityCounts);
+  
+      const newChartData = {
+        labels: formattedMortalityLabels,
+        datasets: [
+          {
+            data: mortalityCounts,
+          },
+        ],
+      };
+  
+      setMortalityChartData(newChartData);
+  
+      // console.log(selectedBatchNo);
+      // console.log(mergedMortalityData);
+      // console.log(formattedMortalityLabels);
+      // console.log(mortalityCounts);
+    } catch (error) {
+      console.error('Error fetching mortality data:', error);
+    }
+  };
+  
+  
+  
+  const mortLineData = {
+    labels: mortLabel,
     datasets: [
       {
-        data: filteredChickenData.map(item => item.count),
+        data: mortCount,
       },
     ],
   };
-
-  const chickenMortality = {
-    labels: 
-    filteredMortalityData.map(item => {
-      const date = item.mortality_date;
-      // return `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
-      return `${date.toLocaleString('default', { month: 'short' })}`;
-    }),
-    // initChicken,
-    datasets: [
-      {
-        data: filteredMortalityData.map(item => item.count),
-      },
-    ],
-  };
-
-  const getOnlyMonth = new Date(selectedDateFrom);
-  const options = { month: 'short' };
-  const monthName = getOnlyMonth.toLocaleString('default', options);
-
-  const getOnlyMonthTo = new Date(selectedDateTo);
-  const optionsTo = { month: 'short' };
-  const monthNameTo = getOnlyMonthTo.toLocaleString('default', optionsTo);
-
-  const year = selectedDateTo.getFullYear();
   
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <TouchableOpacity onPress={toggleDatePickerVisibility} style={styles.filterBtn}>
+        {/* <TouchableOpacity onPress={toggleDatePickerVisibility} style={styles.filterBtn}>
           <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: COLORS.lightWhite}}>Filter</Text>
           <Ionicons
               name="filter"
               size={18}
               color={COLORS.lightWhite}
           />
-        </TouchableOpacity>
-        { isFilterVisible && (
+        </TouchableOpacity> */}
+        {/* { isFilterVisible && (
           <Animated.View style={[styles.filterContainer, filterStyle]}>
             <View style={styles.filterDateContainer}>
               <View style={styles.dateContainer}>
@@ -407,23 +267,51 @@ const Coop = () => {
             </View>
             
           </Animated.View>
-        )}
-        <View style={styles.firstContainer}>
+        )} */}
+        <View style={styles.firstContainer}> 
           {/* CYCLE */}
-          <View style={styles.cycleContainer}>
-            <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>
-              1
-            </Text>
-            <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
-              <Ionicons
-                  name="refresh"
-                  size={18}
-              />
-              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
-                Cycle in 2023
+          <View>
+            <TouchableOpacity style={styles.cycleContainer} onPress={toggleDropdown}>
+              <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>
+                {selectedOption}
               </Text>
-            </View>
+              <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
+                {
+                  isDropdownOpen == true ? (
+                    <Ionicons
+                      name="caret-up"
+                      size={18}
+                    />
+                  ) : (
+                    <Ionicons
+                      name="caret-down"
+                      size={18}
+                    />
+                  )
+                }
+               
+                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
+                  Select Batch No.
+                </Text>
+              </View>
+            </TouchableOpacity>
+            {isDropdownOpen && (
+              <View style={{ backgroundColor: COLORS.lightWhite, ...SHADOWS.medium, borderBottomEndRadius: SIZES.small, borderBottomLeftRadius: SIZES.small, borderTopLeftRadius: SIZES.small, marginTop: 10 }}>
+                {batchNoList.map((no, index) => (
+                  <TouchableOpacity
+                    key={index} 
+                    onPress={() => {handleOptionSelect(no); fetchMortalityData(no);}}
+                    style={{ fontFamily: FONT.medium, alignItems: "center", paddingVertical: 10 }}
+                  >
+                    <Text style={{ fontFamily: FONT.medium }}>Batch No. {no}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
+          
+         
+          
 
           {/* HUMIDITY AND TEMP */}
           <View style={styles.tempHumidityContainer}>
@@ -444,11 +332,11 @@ const Coop = () => {
         <View style={styles.chartContainer}>
           <View style={styles.chartHeaderContainer}>
             <Text style={styles.chartTitle}>No. of Boiler Chicken</Text>
-            <Text style={styles.chartDate}>{monthName} - {monthNameTo} {year}</Text>
+            {/* <Text style={styles.chartDate}>{monthName} - {monthNameTo} {year}</Text> */}
           </View>
-          {filteredChickenData.length > 0 ? (
+          {mortCount.length > 0 ? (
             <BarChart
-              data={chickenCount}
+              data={mortLineData}
               width={390}
               height={220}
               yAxisLabel=""
@@ -473,9 +361,9 @@ const Coop = () => {
          <View style={styles.chartContainer}>
           <View style={styles.chartHeaderContainer}>
             <Text style={styles.chartTitle}>No. of Chicken Deaths</Text>
-            <Text style={styles.chartDate}>{monthName} - {monthNameTo} {year}</Text>
+            {/* <Text style={styles.chartDate}>{monthName} - {monthNameTo} {year}</Text> */}
           </View>
-          {filteredMortalityData.length > 0 ? (
+          {/* {filteredMortalityData.length > 0 ? (
             <LineChart
             data={chickenMortality}
             width={390}
@@ -493,7 +381,29 @@ const Coop = () => {
           />
           ) : (
             <ActivityIndicator size="large" color="blue" />
-          )}
+          )} */}
+         {mortCount.length > 0 ? (
+          <LineChart
+            data={mortLineData}
+            width={390}
+            height={220}
+            yAxisLabel=""
+            yAxisSuffix=""
+            bezier
+            chartConfig={{
+              backgroundColor: '#ffffff',
+              backgroundGradientFrom: '#ffffff',
+              backgroundGradientTo: '#ffffff',
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            }}
+           
+          />
+        ) : (
+          <ActivityIndicator size="large" color="blue" />
+        )}
+
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -6,11 +6,11 @@ const styles = StyleSheet.create({
     container:{
         gap: 20,
         paddingHorizontal: 20,
-        paddingVertical: 30,
+        paddingVertical: 40,
     },
     firstContainer:{
         flexDirection: "row",
-        paddingVertical: 10,
+        paddingVertical: 0,
         paddingHorizontal: 5,
         gap: 5
     },
@@ -55,11 +55,13 @@ const styles = StyleSheet.create({
     },
     contentHeader:{
         fontFamily: FONT.bold,
-        fontSize: SIZES.medium
+        fontSize: SIZES.medium,
+        marginTop: 30,
+        marginBottom: 10
     },
     contentValueText:{
         fontFamily: FONT.medium,
-        fontSize: SIZES.small   
+        fontSize: SIZES.xLarge   
     },
 
     addAndMinBtn:{
@@ -84,9 +86,9 @@ const styles = StyleSheet.create({
     },
 
     dateContainer:{
-        // flexDirection: "row",
+        flexDirection: "row",
         alignItems: "center",
-        marginBottom: 50,
+        marginTop: 50,
         gap: 10
     },
     dateText:{
@@ -94,10 +96,59 @@ const styles = StyleSheet.create({
         fontSize: SIZES.medium
     },
     divider:{
-        width: 100,
+        width: 50,
         height: 2,
-        backgroundColor: COLORS.primary
-    }
+        backgroundColor: COLORS.primary,
+        marginBottom: 30
+    },
+
+    // MODAL
+    overlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)' // Semi-transparent black
+      },
+      modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      modalContent: {
+        width: '80%',
+        padding: 20,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        elevation: 5,
+      },
+      modalText: {
+        fontFamily: FONT.medium,
+        marginBottom: 20,
+        fontSize: 18,
+        textAlign: 'center',
+      },
+      modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+      },
+      modalButton: {
+        paddingHorizontal: 50,
+        paddingVertical: 10,
+        borderRadius: 5,
+      },
+      yesButton: {
+        backgroundColor: COLORS.primary,
+      },
+      noButton: {
+        backgroundColor: COLORS.tertiary,
+      },
+      modalButtonText: {
+        color: 'white',
+        textAlign: 'center',
+        fontFamily: FONT.regular,
+      },
 });
 
 export default styles;

@@ -5,13 +5,16 @@ import { COLORS, FONT, SIZES } from "../../../constants/theme";
 const styles = StyleSheet.create({
     titleContainer:{
         width: "100%",
-        justifyContent: "center",
+        justifyContent: "space-between",
         alignItems: "center",
-        marginVertical: 30
+        flexDirection: "row",
+        paddingLeft: 20,
+        paddingTop: 15, 
+        marginVertical: 20
     },
     headerTitle:{
         fontFamily: FONT.bold,
-        fontSize: SIZES.xxxLarge,
+        fontSize: SIZES.xLarge,
     },
 });
 
