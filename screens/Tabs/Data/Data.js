@@ -47,35 +47,30 @@ const Data = () => {
 
   return (
     <SafeAreaView style={{backgroundColor: COLORS.lightWhite, flex: 1}}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{ paddingTop: 20, width: "100%", justifyContent: "center" }}>
-            <View style={styles.chatsHeader}>
-              <View style={styles.titleContainer}>
-                <Text style={styles.headerTitle}>Poultry Pro</Text>
-              </View>
-              {/* <View>
-                <TouchableOpacity onPress={() => setShowPicker(true)}>
-                  <Text>OPEN</Text>
-                </TouchableOpacity>
-                {showPicker && (
-                  <DateTimePicker
-                    value={date}
-                    mode="date"
-                    display="calendar"
-                    onChange={onChange}
-                  />
-                )}
-              </View> */}
-              <Tabs 
-                tabs={tabList}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-              />
-            </View>
-            {displayTabContent()}
+      <View style={styles.chatsHeader}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.headerTitle}>Poultry Pro</Text>
         </View>
-        
-      </ScrollView>
+        {/* <View>
+          <TouchableOpacity onPress={() => setShowPicker(true)}>
+            <Text>OPEN</Text>
+          </TouchableOpacity>
+          {showPicker && (
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display="calendar"
+              onChange={onChange}
+            />
+          )}
+        </View> */}
+        <Tabs 
+          tabs={tabList}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
+      </View>
+      {displayTabContent()}
     </SafeAreaView>
   )
 }

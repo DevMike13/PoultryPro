@@ -1,27 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
+import { SafeAreaView, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, Animated, Dimensions } from 'react-native';
 import { FONT, SIZES, COLORS, SHADOWS } from '../../../../constants/theme';
 import { BarChart, LineChart } from 'react-native-chart-kit';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import firebase from '../../../../firebase';
 import styles from './coop.style';
-  
+
+
+
 const Coop = () => {
 
-  const [selectedDateFrom, setSelectedDateFrom] = useState(new Date());
-  const [showDatePickerFrom, setShowDatePickerFrom] = useState(false);
-
-  const [selectedDateTo, setSelectedDateTo] = useState(new Date());
-  const [showDatePickerTo, setShowDatePickerTo] = useState(false);
-
-  const [filteredMortalityData, setFilteredMortalityData] = useState([]);
-  const [filteredChickenData, setFilteredChickenData] = useState([]);
-
-  const [initialMortalityData, setInitialMortalityData] = useState([]);
-  const [initialChickenData, setInitialChickenData] = useState([]);
-
+  const screenWidth = Dimensions.get("window").width;
   const [isLoading, setIsLoading] = useState(true);
 
   const [isFilterVisible, setIsFilterVisible] = useState(false);
@@ -30,6 +21,7 @@ const Coop = () => {
   // NEW
   const [batchList, setBatchList] = useState([]);
   const [batchNoList, setBatchNoList] = useState([]);
+  const [batchInfo, setBatchInfo] = useState([]);
 
   const [selectedOption, setSelectedOption] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -55,6 +47,20 @@ const Coop = () => {
       return date.toLocaleDateString('en-US', options);
     }
     return '';
+  };
+
+  const formatDateToString = (isoDate) => {
+    const date = new Date(isoDate);
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+    
+  };
+
+  const formatGetSpecificMonth = (isoDate) => {
+    const date = new Date(isoDate);
+
+    const monthYearOptions = { year: 'numeric', month: 'short' };
+    return date.toLocaleDateString('en-US', monthYearOptions);
   };
   
   const toggleDropdown = () => {
@@ -103,8 +109,8 @@ const Coop = () => {
       setBatchNoList(fetchedBatchNoList); 
       setSelectedOption(fetchedBatchNoList[0]);
       fetchMortalityData(fetchedBatchNoList[0]);
+      fetchBatchInfo(fetchedBatchNoList[0]);
       setIsLoading(false); 
-      // console.log(selectedOption);
     }); 
   };
 
@@ -112,19 +118,10 @@ const Coop = () => {
       getBatchList()
   }, []);
 
-  // useEffect(() => {
-  //   if (batchNoList.length > 0) {
-  //     setSelectedOption(batchNoList[0]);
-  //   }
-  // }, [batchNoList]);
-
-  // useEffect(() => {
-  //   fetchMortalityData(selectedOption)
-  // }, [batchNoList]);
-  
   const handleOptionSelect = (no) => {
     setSelectedOption(no);
     fetchMortalityData(no);
+    fetchBatchInfo(no);
     setIsDropdownOpen(false);
   };
   
@@ -177,18 +174,32 @@ const Coop = () => {
       };
   
       setMortalityChartData(newChartData);
-  
-      // console.log(selectedBatchNo);
-      // console.log(mergedMortalityData);
-      // console.log(formattedMortalityLabels);
-      // console.log(mortalityCounts);
     } catch (error) {
       console.error('Error fetching mortality data:', error);
     }
   };
   
+  const fetchBatchInfo = async (selectedBatchNo) => {
+    try {
+      // Fetch batch data
+      const batchDocumentRef = firebase.firestore().collection('batch').doc(`${selectedBatchNo}`);
+      const batchDocumentSnapshot = await batchDocumentRef.get();
+      const batchInfo = batchDocumentSnapshot.data();
+
+      // Convert timestamp fields to JavaScript Date objects
+      batchInfo.cycle_expected_end_date = batchInfo.cycle_expected_end_date.toDate();
+      batchInfo.cycle_started = batchInfo.cycle_started.toDate();
   
+      setBatchInfo(batchInfo);
+      // console.log(batchInfo);
+      setIsLoading(false);
+      // ... Your existing mortality data fetching logic ...
   
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+ 
   const mortLineData = {
     labels: mortLabel,
     datasets: [
@@ -200,144 +211,139 @@ const Coop = () => {
   
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* <TouchableOpacity onPress={toggleDatePickerVisibility} style={styles.filterBtn}>
-          <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: COLORS.lightWhite}}>Filter</Text>
-          <Ionicons
-              name="filter"
-              size={18}
-              color={COLORS.lightWhite}
-          />
-        </TouchableOpacity> */}
-        {/* { isFilterVisible && (
-          <Animated.View style={[styles.filterContainer, filterStyle]}>
-            <View style={styles.filterDateContainer}>
-              <View style={styles.dateContainer}>
-                <Text style={styles.dateText}>From Date: </Text>
-                <TouchableOpacity onPress={toggleDatePickerFrom} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 20, paddingVertical: 5, flexDirection: "row", gap: 15, borderRadius: SIZES.small }}>
-                  <Text style={styles.dateText}>
-                    {formatDate(selectedDateFrom)}
-                  </Text>
-                  <Ionicons
-                    name="calendar-outline"
-                    size={20}
-                  />
-                </TouchableOpacity>
-                {showDatePickerFrom && (
-                  <DateTimePicker
-                    value={selectedDateFrom}
-                    mode="date"
-                    display="default"
-                    onChange={handleDateChangeFrom}
-                  />
-                )}
-              </View>
-              <View style={styles.dateContainer}>
-                <Text style={styles.dateText}>To Date: </Text>
-                <TouchableOpacity onPress={toggleDatePickerTo} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 20, paddingVertical: 5, flexDirection: "row", gap: 15, borderRadius: SIZES.small }}>
-                  <Text style={styles.dateText}>
-                    {formatDate(selectedDateTo)}
-                  </Text>
-                  <Ionicons
-                    name="calendar-outline"
-                    size={20}
-                  />
-                </TouchableOpacity>
-                {showDatePickerTo && (
-                  <DateTimePicker
-                    value={selectedDateTo}
-                    mode="date"
-                    display="default"
-                    onChange={handleDateChangeTo}
-                  />
-                )}
-              </View>
-            </View>
-            <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 20, flexDirection: "row", gap: 80 }}>
-              <TouchableOpacity style={{ backgroundColor: COLORS.tertiary, width: 100, paddingVertical: 5, borderRadius: SIZES.small, alignItems: "center" }} onPress={() => { fetchMortalityData(); fetchChickenPerMonthData(); }}>
-                <Text style={{ fontFamily: FONT.medium, color: COLORS.lightWhite }}>
-                  Apply
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={{ backgroundColor: COLORS.tertiary, width: 110, paddingVertical: 5, borderRadius: SIZES.small, alignItems: "center" }} onPress={() => { fetchMortalityInitialData(); fetchChickenInitialData(); }}>
-                <Text style={{ fontFamily: FONT.medium, color: COLORS.lightWhite }}>
-                  Remove Filter
-                </Text>
-              </TouchableOpacity>
-            </View>
-            
-          </Animated.View>
-        )} */}
-        <View style={styles.firstContainer}> 
-          {/* CYCLE */}
-          <View>
-            <TouchableOpacity style={styles.cycleContainer} onPress={toggleDropdown}>
+      <View style={styles.firstContainer}> 
+        {/* CYCLE */}
+        <View>
+          <TouchableOpacity style={styles.cycleContainer} onPress={toggleDropdown}>
+            { batchNoList.length > 0 ? (
               <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>
-                {selectedOption}
+              {selectedOption}
               </Text>
-              <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
-                {
-                  isDropdownOpen == true ? (
-                    <Ionicons
-                      name="caret-up"
-                      size={18}
-                    />
-                  ) : (
-                    <Ionicons
-                      name="caret-down"
-                      size={18}
-                    />
-                  )
-                }
-               
-                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
-                  Select Batch No.
-                </Text>
-              </View>
-            </TouchableOpacity>
-            {isDropdownOpen && (
-              <View style={{ backgroundColor: COLORS.lightWhite, ...SHADOWS.medium, borderBottomEndRadius: SIZES.small, borderBottomLeftRadius: SIZES.small, borderTopLeftRadius: SIZES.small, marginTop: 10 }}>
-                {batchNoList.map((no, index) => (
-                  <TouchableOpacity
-                    key={index} 
-                    onPress={() => {handleOptionSelect(no); fetchMortalityData(no);}}
-                    style={{ fontFamily: FONT.medium, alignItems: "center", paddingVertical: 10 }}
-                  >
-                    <Text style={{ fontFamily: FONT.medium }}>Batch No. {no}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+            ) : (
+              <ActivityIndicator size="large" color="blue" />
             )}
-          </View>
-          
-         
-          
+            <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
+              {
+                isDropdownOpen == true ? (
+                  <Ionicons
+                    name="caret-up"
+                    size={18}
+                  />
+                ) : (
+                  <Ionicons
+                    name="caret-down"
+                    size={18}
+                  />
+                )
+              }
+              
+              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
+                Select Batch No.
+              </Text>
+            </View>
+          </TouchableOpacity>
+          {isDropdownOpen && (
+            <View style={{ position:"absolute", top: 100, right: 5, backgroundColor: COLORS.lightWhite, ...SHADOWS.medium, borderBottomEndRadius: SIZES.small, borderBottomLeftRadius: SIZES.small, borderTopLeftRadius: SIZES.small, marginTop: 10, zIndex: 999, paddingVertical: 20, width: 118 }}>
+              {batchNoList.map((no, index) => (
+                <TouchableOpacity
+                  key={index} 
+                  onPress={() => {handleOptionSelect(no); fetchMortalityData(no);}}
+                  style={{ fontFamily: FONT.medium, alignItems: "center", paddingVertical: 10 }}
+                >
+                  <Text style={{ fontFamily: FONT.medium }}>Batch No. {no}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </View>
+        
+        
+        
 
-          {/* HUMIDITY AND TEMP */}
+        {/* HUMIDITY AND TEMP */}
+        <View style={styles.batchInfoContainer}>
+          <View style={styles.batchContainerHeader}>
+            <Text style={{ fontFamily: FONT.bold }}>Batch Infomation</Text>
+          </View>
           <View style={styles.tempHumidityContainer}>
             <View style={styles.tempHumidityContent}>
-              <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>70%</Text>
-              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#90EE90" }}>Normal</Text>
-              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>Average Humidity</Text>
+              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "green" }}>Start</Text>
+              { mortCount.length > 0 ? (
+                
+                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatDateToString(batchInfo.cycle_started)}</Text>
+                
+              ) : (
+                <ActivityIndicator size="large" color="blue" />
+              )}
+              
             </View>
             <View style={styles.tempHumidityContent}>
-              <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>32 C°</Text>
-              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#90EE90" }}>Normal</Text>
-              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>Average Temperature</Text>
+              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "red" }}>End</Text>
+              { mortCount.length > 0 ? (
+                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatDateToString(batchInfo.cycle_expected_end_date)}</Text>
+              ) : (
+                <ActivityIndicator size="large" color="blue" />
+              )}
             </View>
           </View>
+          <View style={styles.statusContainer}>
+            <Text style={{ fontFamily: FONT.medium }}>Status: </Text>
+            { mortCount.length > 0 ? (
+              <Text style={{ fontFamily: FONT.regular, color: new Date() > batchInfo.cycle_expected_end_date ? "red" : "green", }}>{new Date() > batchInfo.cycle_expected_end_date ? "Ended" : "Ongoing"}</Text>
+            ) : (
+              <ActivityIndicator size="large" color="blue" />
+            )}
+          </View>
         </View>
-
+      </View>
+      <ScrollView showsVerticalScrollIndicator={true} contentContainerStyle={styles.scrollView}>
+      { mortCount.length > 7 ? (
+        <ScrollView horizontal>
         {/* Broiler Chicken Graph */}
+          <View style={styles.chartContainer}>
+            <View style={styles.chartHeaderContainer}>
+              <Text style={styles.chartTitle}>No. of Boiler Chicken</Text>
+              {mortCount.length > 0 ? (
+                <Text style={styles.chartDate}>{formatGetSpecificMonth(batchInfo.cycle_started)} - {formatGetSpecificMonth(batchInfo.cycle_expected_end_date)}</Text>
+              ) : (
+                <ActivityIndicator size="large" color="blue" />
+              )}
+            </View>
+            {mortCount.length > 0 ? (
+              <BarChart
+                data={mortLineData}
+                width={800}
+                height={220}
+                yAxisLabel=""
+                yAxisSuffix=""
+                chartConfig={{
+                  backgroundColor: '#ffffff',
+                  backgroundGradientFrom: '#ffffff',
+                  backgroundGradientTo: '#ffffff',
+                  decimalPlaces: 0,
+                  color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
+                }}
+                style={styles.chart}
+              />
+            ) : (
+              <ActivityIndicator size="large" color="blue" />
+            )} 
+          </View>
+        </ScrollView>
+      ) : (
         <View style={styles.chartContainer}>
           <View style={styles.chartHeaderContainer}>
             <Text style={styles.chartTitle}>No. of Boiler Chicken</Text>
-            {/* <Text style={styles.chartDate}>{monthName} - {monthNameTo} {year}</Text> */}
+            {mortCount.length > 0 ? (
+              <Text style={styles.chartDate}>{formatGetSpecificMonth(batchInfo.cycle_started)} - {formatGetSpecificMonth(batchInfo.cycle_expected_end_date)}</Text>
+            ) : (
+              <ActivityIndicator size="large" color="blue" />
+            )}
           </View>
           {mortCount.length > 0 ? (
             <BarChart
               data={mortLineData}
-              width={390}
+              width={screenWidth}
               height={220}
               yAxisLabel=""
               yAxisSuffix=""
@@ -352,59 +358,87 @@ const Coop = () => {
             />
           ) : (
             <ActivityIndicator size="large" color="blue" />
-          )}
-         
+          )} 
         </View>
-
-        {/* Death Graph */}
-         {/* Broiler Chicken Graph */}
-         <View style={styles.chartContainer}>
-          <View style={styles.chartHeaderContainer}>
-            <Text style={styles.chartTitle}>No. of Chicken Deaths</Text>
-            {/* <Text style={styles.chartDate}>{monthName} - {monthNameTo} {year}</Text> */}
-          </View>
-          {/* {filteredMortalityData.length > 0 ? (
-            <LineChart
-            data={chickenMortality}
-            width={390}
-            height={220}
-            yAxisLabel=""
-            yAxisSuffix=""
-            chartConfig={{
-              backgroundColor: '#ffffff',
-              backgroundGradientFrom: '#ffffff',
-              backgroundGradientTo: '#ffffff',
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
-            }}
-            style={styles.chart}
-          />
-          ) : (
-            <ActivityIndicator size="large" color="blue" />
-          )} */}
-         {mortCount.length > 0 ? (
-          <LineChart
-            data={mortLineData}
-            width={390}
-            height={220}
-            yAxisLabel=""
-            yAxisSuffix=""
-            bezier
-            chartConfig={{
-              backgroundColor: '#ffffff',
-              backgroundGradientFrom: '#ffffff',
-              backgroundGradientTo: '#ffffff',
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            }}
-           
-          />
+      )}
+      
+        { mortCount.length > 7 ? (
+          <ScrollView horizontal>
+            <View style={styles.chartContainer}>
+              <View style={styles.chartHeaderContainer}>
+                <Text style={styles.chartTitle}>No. of Chicken Deaths</Text>
+                {mortCount.length > 0 ? (
+                  <Text style={styles.chartDate}>{formatGetSpecificMonth(batchInfo.cycle_started)} - {formatGetSpecificMonth(batchInfo.cycle_expected_end_date)}</Text>
+                ) : (
+                  <ActivityIndicator size="large" color="blue" />
+                )}
+              </View>
+            
+              {mortCount.length > 0 ? (
+                
+                  <LineChart
+                    data={mortLineData}
+                    width={800}
+                    height={270}
+                    yAxisLabel=""
+                    yAxisSuffix=""
+                    bezier
+                    verticalLabelRotation={30}
+                    chartConfig={{
+                      backgroundColor: '#ffffff',
+                      backgroundGradientFrom: '#ffffff',
+                      backgroundGradientTo: '#ffffff',
+                      decimalPlaces: 0,
+                      skipLabels: 2, // Skip every 2nd label
+                      color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+                      labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                    }}
+                  
+                  />
+                
+              ) : (
+                <ActivityIndicator size="large" color="blue" />
+              )}
+            
+            </View>
+          </ScrollView>
         ) : (
-          <ActivityIndicator size="large" color="blue" />
+          <View style={styles.chartContainer}>
+            <View style={styles.chartHeaderContainer}>
+              <Text style={styles.chartTitle}>No. of Chicken Deaths</Text>
+              {mortCount.length > 0 ? (
+                <Text style={styles.chartDate}>{formatGetSpecificMonth(batchInfo.cycle_started)} - {formatGetSpecificMonth(batchInfo.cycle_expected_end_date)}</Text>
+              ) : (
+                <ActivityIndicator size="large" color="blue" />
+              )}
+            </View>
+          
+            {mortCount.length > 0 ? (
+                <LineChart
+                  data={mortLineData}
+                  width={screenWidth}
+                  height={270}
+                  yAxisLabel=""
+                  yAxisSuffix=""
+                  bezier
+                  // verticalLabelRotation={30}
+                  chartConfig={{
+                    backgroundColor: '#ffffff',
+                    backgroundGradientFrom: '#ffffff',
+                    backgroundGradientTo: '#ffffff',
+                    decimalPlaces: 0,
+                    skipLabels: 2, // Skip every 2nd label
+                    color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+                    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  }}
+                
+                />
+              
+            ) : (
+              <ActivityIndicator size="large" color="blue" />
+            )}
+          </View>
         )}
-
-        </View>
       </ScrollView>
     </SafeAreaView>
   )
