@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView, Text, View, TouchableOpacity, ActivityIndicator, ToastAndroid, Modal } from 'react-native';
+import { SafeAreaView, Text, View, TouchableOpacity, ActivityIndicator, ToastAndroid, Modal, ScrollView } from 'react-native';
 import { BlurView } from 'expo-blur';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
+import Toast from 'react-native-toast-message';
 
 import { FONT, SIZES, COLORS } from '../../../../constants/theme';
 import styles from './death.style';
 
 import firebase from '../../../../firebase';
+
 
 const DeathFarmer = () => {
 
@@ -72,10 +74,15 @@ const DeathFarmer = () => {
 
   const successToast = () => {
       //function to make Toast With Duration
-      ToastAndroid.showWithGravity('Mortality Added', 
-      ToastAndroid.LONG,
-      ToastAndroid.CENTER
-    );
+    //   ToastAndroid.showWithGravity('Mortality Added', 
+    //   ToastAndroid.LONG,
+    //   ToastAndroid.CENTER
+    // );
+    Toast.show({
+      type: 'success',
+      text1: 'Mortality Added',
+      visibilityTime: 5000, // Adjust as needed
+    });
   };
 
   const addMortalityData = async () => {
@@ -212,167 +219,171 @@ const DeathFarmer = () => {
   const daysBetweenRounded = startDate ? Math.round(calculateDaysDifference(startDate, endDate)) : null;
   
   return (
+    
     <SafeAreaView style={styles.container}>
       <ConfirmationModal/>
-      <View style={styles.firstContainer}>
-        {/* CYCLE */}
-        <View style={styles.cycleContainer}>
-          
-            {isLoading ? (
-              <ActivityIndicator size="large" color="blue" />
-            ) : (
-              <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{btData.batch_no}</Text>
-            )}
-         
-          <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
-            <Ionicons
-                name="logo-buffer"
-                size={18}
-            />
-            <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
-              Batch No.
-            </Text>
-          </View>
-        </View>
-
-        {/* HUMIDITY AND TEMP */}
-        <View style={styles.tempHumidityContainer1}>
-          <View>
-            <Text style={{ fontFamily: FONT.bold}}>
-              Cycle Duration
-            </Text>
-          </View>
-          <View style={styles.tempHumidityContainer}>
-            <View style={styles.tempHumidityContent}>
-              {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>70%</Text> */}
-              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#FF5733" }}>Start</Text>
+      <ScrollView showsVerticalScrollIndicator={true} style={{ paddingVertical: 30 }}>
+        <View style={styles.firstContainer}>
+          {/* CYCLE */}
+          <View style={styles.cycleContainer}>
+            
               {isLoading ? (
                 <ActivityIndicator size="large" color="blue" />
               ) : (
-                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatFirestoreTimestamp(btData.cycle_started)}</Text>
+                <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{btData.batch_no}</Text>
               )}
+          
+            <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
+              <Ionicons
+                  name="logo-buffer"
+                  size={18}
+              />
+              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
+                Batch No.
+              </Text>
             </View>
-            <View style={styles.tempHumidityContent}>
-              {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>32 C°</Text> */}
-              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#ff0000" }}>End</Text>
+          </View>
+
+          {/* HUMIDITY AND TEMP */}
+          <View style={styles.tempHumidityContainer1}>
+            <View>
+              <Text style={{ fontFamily: FONT.bold}}>
+                Cycle Duration
+              </Text>
+            </View>
+            <View style={styles.tempHumidityContainer}>
+              <View style={styles.tempHumidityContent}>
+                {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>70%</Text> */}
+                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#FF5733" }}>Start</Text>
+                {isLoading ? (
+                  <ActivityIndicator size="large" color="blue" />
+                ) : (
+                  <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatFirestoreTimestamp(btData.cycle_started)}</Text>
+                )}
+              </View>
+              <View style={styles.tempHumidityContent}>
+                {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>32 C°</Text> */}
+                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#ff0000" }}>End</Text>
+                {isLoading ? (
+                  <ActivityIndicator size="large" color="blue" />
+                ) : (
+                  <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatFirestoreTimestamp(btData.cycle_expected_end_date)}</Text>
+                )}
+                
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.firstContainer}>
+          {/* CYCLE */}
+          <View style={styles.cycleContainer}>
+            
               {isLoading ? (
                 <ActivityIndicator size="large" color="blue" />
               ) : (
-                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatFirestoreTimestamp(btData.cycle_expected_end_date)}</Text>
+                <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{daysBetweenRounded}</Text>
               )}
-              
+          
+            <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
+              <Ionicons
+                  name="sunny"
+                  size={18}
+              />
+              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
+                Day No.   
+              </Text>
+            </View>
+          </View>
+
+          {/* HUMIDITY AND TEMP */}
+          <View style={[styles.tempHumidityContainer1, {gap: 10}]}>
+            <View>
+              <Text style={{ fontFamily: FONT.bold}}>
+                Total Population
+              </Text>
+            </View>
+            <View style={styles.tempHumidityContainer}>
+              {isLoading ? (
+                <ActivityIndicator size="large" color="blue" />
+              ) : (
+                <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
+              )}
             </View>
           </View>
         </View>
-      </View>
-
-      <View style={styles.firstContainer}>
-        {/* CYCLE */}
-        <View style={styles.cycleContainer}>
-          
-            {isLoading ? (
-              <ActivityIndicator size="large" color="blue" />
-            ) : (
-              <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{daysBetweenRounded}</Text>
-            )}
-         
-          <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
-            <Ionicons
-                name="sunny"
-                size={18}
-            />
-            <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
-              Day No.   
+        <View style={styles.contentContainer}>
+          <Text style={styles.contentHeader}>Chicken died today</Text>
+          <View style={styles.divider}></View>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 60, marginTop: 20}}>
+            <TouchableOpacity style={styles.addAndMinBtn} onPress={incrementCounter}>
+              <Ionicons
+                name="add"
+                size={28}
+                color={COLORS.lightWhite}
+              />
+            </TouchableOpacity>
+            <Text style={styles.contentValueText}> {counter} </Text>
+            <TouchableOpacity style={styles.addAndMinBtn} onPress={decrementCounter}>
+              <Ionicons
+                name="remove"
+                size={28}
+                color={COLORS.lightWhite}
+              />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity style={styles.confirmBtn} onPress={() =>{
+            handleConfirmModal();
+          }}>
+            <Text style={styles.confirmBtnText}>
+              Confirm
             </Text>
-          </View>
-        </View>
-
-        {/* HUMIDITY AND TEMP */}
-        <View style={[styles.tempHumidityContainer1, {gap: 10}]}>
-          <View>
-            <Text style={{ fontFamily: FONT.bold}}>
-              Total Population
-            </Text>
-          </View>
-          <View style={styles.tempHumidityContainer}>
-            {isLoading ? (
-              <ActivityIndicator size="large" color="blue" />
-            ) : (
-              <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
-            )}
-          </View>
-        </View>
-      </View>
-      <View style={styles.contentContainer}>
-        <Text style={styles.contentHeader}>Chicken died today</Text>
-        <View style={styles.divider}></View>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 60, marginTop: 20}}>
-          <TouchableOpacity style={styles.addAndMinBtn} onPress={incrementCounter}>
-            <Ionicons
-              name="add"
-              size={28}
-              color={COLORS.lightWhite}
-            />
           </TouchableOpacity>
-          <Text style={styles.contentValueText}> {counter} </Text>
-          <TouchableOpacity style={styles.addAndMinBtn} onPress={decrementCounter}>
-            <Ionicons
-              name="remove"
-              size={28}
-              color={COLORS.lightWhite}
-            />
-          </TouchableOpacity>
+
+          {/* <View style={{ width: "100%", flexDirection : "row", justifyContent: "space-around", marginTop: 50 }}>
+            <View style={styles.contentContainer}>
+              <Text style={styles.contentHeader}>Total Population</Text>
+              {isLoading ? (
+                <ActivityIndicator size="large" color="blue" />
+              ) : (
+                <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
+              )}
+            </View>
+            <View style={styles.contentContainer}>
+              <Text style={styles.contentHeader}>Population after </Text>
+              {isLoading ? (
+                <ActivityIndicator size="large" color="blue" />
+              ) : (
+                <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
+              )}
+            </View>
+          </View> */}
+
+          <View style={styles.dateContainer}>
+            <Text style={styles.dateText}>Date: </Text>
+            <TouchableOpacity onPress={toggleDatePicker} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 20, paddingVertical: 5, flexDirection: "row", gap: 15, borderRadius: SIZES.small }}>
+              <Text style={styles.dateText}>
+                {formatDate(selectedDate)}
+              </Text>
+              <Ionicons
+                name="calendar-outline"
+                size={20}
+              />
+            </TouchableOpacity>
+            {showDatePicker && (
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display="default"
+                onChange={handleDateChange}
+              />
+            )}
+            {/* <Text style={styles.dateText}>{`Your're in day ${daysBetweenRounded} in current cycle.`}</Text>
+            <View style={styles.divider}></View> */}
+          </View> 
         </View>
-        <TouchableOpacity style={styles.confirmBtn} onPress={() =>{
-          handleConfirmModal();
-        }}>
-          <Text style={styles.confirmBtnText}>
-            Confirm
-          </Text>
-        </TouchableOpacity>
-
-        {/* <View style={{ width: "100%", flexDirection : "row", justifyContent: "space-around", marginTop: 50 }}>
-          <View style={styles.contentContainer}>
-            <Text style={styles.contentHeader}>Total Population</Text>
-            {isLoading ? (
-              <ActivityIndicator size="large" color="blue" />
-            ) : (
-              <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
-            )}
-          </View>
-          <View style={styles.contentContainer}>
-            <Text style={styles.contentHeader}>Population after </Text>
-            {isLoading ? (
-              <ActivityIndicator size="large" color="blue" />
-            ) : (
-              <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
-            )}
-          </View>
-        </View> */}
-
-        <View style={styles.dateContainer}>
-          <Text style={styles.dateText}>Date: </Text>
-          <TouchableOpacity onPress={toggleDatePicker} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 20, paddingVertical: 5, flexDirection: "row", gap: 15, borderRadius: SIZES.small }}>
-            <Text style={styles.dateText}>
-              {formatDate(selectedDate)}
-            </Text>
-            <Ionicons
-              name="calendar-outline"
-              size={20}
-            />
-          </TouchableOpacity>
-          {showDatePicker && (
-            <DateTimePicker
-              value={selectedDate}
-              mode="date"
-              display="default"
-              onChange={handleDateChange}
-            />
-          )}
-          {/* <Text style={styles.dateText}>{`Your're in day ${daysBetweenRounded} in current cycle.`}</Text>
-          <View style={styles.divider}></View> */}
-        </View> 
-      </View>
+      </ScrollView>
+      <Toast position="bottom"/>
     </SafeAreaView>
   )
 }

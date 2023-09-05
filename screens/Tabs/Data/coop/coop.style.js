@@ -25,7 +25,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         paddingVertical: 10,
         paddingHorizontal: 5,
-        gap: 5
+        gap: 5,
+        zIndex: 10
     },
     cycleContainer:{
         justifyContent: "center",
@@ -83,7 +84,8 @@ const styles = StyleSheet.create({
     scrollView:{
         justifyContent: "center",
         alignItems: "center",
-        paddingTop: 15
+        paddingTop: 15,
+        zIndex: 0
     },
     batchInfoContainer:{
         flex: 1,

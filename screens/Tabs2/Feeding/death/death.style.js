@@ -4,15 +4,16 @@ import { COLORS, FONT, SHADOWS, SIZES } from "../../../../constants/theme";
 
 const styles = StyleSheet.create({
     container:{
+        flex: 1,
         gap: 20,
-        paddingHorizontal: 20,
-        paddingVertical: 40,
+        // paddingHorizontal: 20,
+        // paddingVertical: 40,
     },
     firstContainer:{
-        flexDirection: "row",
-        paddingVertical: 0,
-        paddingHorizontal: 5,
-        gap: 5
+      flexDirection: "row",
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      gap: 5
     },
     cycleContainer:{
         justifyContent: "center",
@@ -50,6 +51,8 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.lightWhite,
         paddingVertical: 20,
         paddingHorizontal: 10,
+        marginHorizontal: 20,
+        marginVertical: 20,
         borderRadius: SIZES.medium,
         ...SHADOWS.medium
     },

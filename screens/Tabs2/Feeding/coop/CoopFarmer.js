@@ -5,6 +5,7 @@ import { BlurView } from 'expo-blur';
 import { COLORS, FONT, SIZES } from '../../../../constants/theme';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { addDays, format } from 'date-fns';
+import Toast from 'react-native-toast-message';
 
 import firebase from '../../../../firebase';
 import styles from './coop.style';
@@ -278,10 +279,11 @@ const CoopFarmer = () => {
 
   const successToast = () => {
     //function to make Toast With Duration
-    ToastAndroid.showWithGravity('Your last cycle is not finished!', 
-      ToastAndroid.LONG,
-      ToastAndroid.CENTER
-    );
+    Toast.show({
+      type: 'error',
+      text1: 'Your last cycle is not finished!',
+      visibilityTime: 3000, // Adjust as needed
+    });
   };
 
   useEffect(() => {
@@ -329,7 +331,7 @@ const CoopFarmer = () => {
     // Update the visibility state based on the condition
     setShowCreateButton(shouldShowCreateButton);
   }, [btData]);
-  
+
   const renderItemList = ({ item }) => (
     
     <View style={styles.list}>
@@ -376,22 +378,27 @@ const CoopFarmer = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ConfirmationModal />
-      <TouchableOpacity
-      style={[
-        styles.createBtn,
-        !showCreateButton && { backgroundColor: COLORS.gray2 }
-      ]}
-      onPress={handleCreateButtonPress}
-    >
-      <Text style={styles.createBtnText}>
-        Create New Batch
-      </Text>
-      <Ionicons
-        name="add"
-        size={20}
-        color={COLORS.lightWhite}
-      />
-    </TouchableOpacity>
+      { btData.length <= 0 ? (
+        <ActivityIndicator size="large" color="blue" style={{ marginTop: 10 }}/>
+      ) : (
+        <TouchableOpacity
+          style={[
+            styles.createBtn,
+            !showCreateButton && { backgroundColor: COLORS.gray2 }
+          ]}
+          onPress={handleCreateButtonPress}
+        >
+          <Text style={styles.createBtnText}>
+            Create New Batch
+          </Text>
+          <Ionicons
+            name="add"
+            size={20}
+            color={COLORS.lightWhite}
+          />
+        </TouchableOpacity>
+      )}
+      
       {isFilterVisible && (
         <Animated.View style={[styles.createContainer, filterStyle]}>
           <View style={styles.inputContainer}>
@@ -471,6 +478,7 @@ const CoopFarmer = () => {
           )
         }
       </ScrollView>
+      <Toast position="bottom"/>
     </SafeAreaView>
   )
 }

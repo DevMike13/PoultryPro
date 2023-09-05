@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
     gap: 30
   },
   headerContainer:{
-    width: "100%",
+    // width: "100%",
     alignItems: "center",
     flexDirection: "row",
     gap: 20
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     color: COLORS.lightWhite
   },
   dateContainer:{
-    width: "100%",
+    
     alignItems: "flex-start",
     gap: 10
   },
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.lightWhite,
     borderRadius: SIZES.medium,
     flexDirection: "row",
-    width: "100%",
+    width: "90%",
     paddingVertical: SIZES.large,
     gap: 20,
     ...SHADOWS.medium

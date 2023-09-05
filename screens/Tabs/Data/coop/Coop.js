@@ -67,27 +67,27 @@ const Coop = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  useEffect(() => {
-    const newValue = isFilterVisible ? 1 : 0;
+  // useEffect(() => {
+  //   const newValue = isFilterVisible ? 1 : 0;
     
-    Animated.timing(animation, {
-      toValue: newValue,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  }, [isFilterVisible]);
+  //   Animated.timing(animation, {
+  //     toValue: newValue,
+  //     duration: 300,
+  //     useNativeDriver: true,
+  //   }).start();
+  // }, [isFilterVisible]);
   
-  const filterStyle = {
-    opacity: animation,
-    transform: [
-      {
-        translateY: animation.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, 0], // Adjust the values as needed
-        }),
-      },
-    ],
-  };
+  // const filterStyle = {
+  //   opacity: animation,
+  //   transform: [
+  //     {
+  //       translateY: animation.interpolate({
+  //         inputRange: [0, 1],
+  //         outputRange: [0, 0], // Adjust the values as needed
+  //       }),
+  //     },
+  //   ],
+  // };
 
 
   const getBatchList = () => {
@@ -213,7 +213,7 @@ const Coop = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.firstContainer}> 
         {/* CYCLE */}
-        <View>
+        <View style={Platform.OS === 'ios' ? {zIndex: 999} : {}}>
           <TouchableOpacity style={styles.cycleContainer} onPress={toggleDropdown}>
             { batchNoList.length > 0 ? (
               <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>
@@ -243,7 +243,7 @@ const Coop = () => {
             </View>
           </TouchableOpacity>
           {isDropdownOpen && (
-            <View style={{ position:"absolute", top: 100, right: 5, backgroundColor: COLORS.lightWhite, ...SHADOWS.medium, borderBottomEndRadius: SIZES.small, borderBottomLeftRadius: SIZES.small, borderTopLeftRadius: SIZES.small, marginTop: 10, zIndex: 999, paddingVertical: 20, width: 118 }}>
+            <View style={{ position:"absolute", top: 100, right: 5, backgroundColor: COLORS.lightWhite, ...SHADOWS.medium, borderBottomEndRadius: SIZES.small, borderBottomLeftRadius: SIZES.small, borderTopLeftRadius: SIZES.small, zIndex: 1, marginTop: 10, elevation: 2, paddingVertical: 20, width: 118 }}>
               {batchNoList.map((no, index) => (
                 <TouchableOpacity
                   key={index} 
@@ -256,9 +256,6 @@ const Coop = () => {
             </View>
           )}
         </View>
-        
-        
-        
 
         {/* HUMIDITY AND TEMP */}
         <View style={styles.batchInfoContainer}>
