@@ -30,7 +30,9 @@ const Coop = () => {
 
   const [mortLabel, setMortLabel] = useState([]);
   const [mortCount, setMortCount] = useState([]);
-  
+
+  const [tooltipData, setTooltipData] = useState(null);
+
   const [mortalityChartData, setMortalityChartData] = useState({
     labels: [],
     datasets: [
@@ -88,7 +90,6 @@ const Coop = () => {
   //     },
   //   ],
   // };
-
 
   const getBatchList = () => {
     // Reference to the Firestore collection
@@ -174,6 +175,7 @@ const Coop = () => {
       };
   
       setMortalityChartData(newChartData);
+      setTooltipData(null);
     } catch (error) {
       console.error('Error fetching mortality data:', error);
     }
@@ -208,7 +210,20 @@ const Coop = () => {
       },
     ],
   };
-  
+
+  const handleDataPointClick = (data) => {
+    if (tooltipData && tooltipData.index === data.index) {
+      // If the tooltip is already open for this data point, close it
+      setTooltipData(null);
+    } else {
+      // If the tooltip is not open or is open for a different data point, open it
+      const index = data.index;
+      const value = mortLineData.datasets[0].data[index];
+      const label = mortLineData.labels[index];
+      setTooltipData({ x: data.x, y: data.y, value, label, index });
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.firstContainer}> 
@@ -372,8 +387,9 @@ const Coop = () => {
               </View>
             
               {mortCount.length > 0 ? (
-                
+                  <View>
                   <LineChart
+                    onDataPointClick={handleDataPointClick}
                     data={mortLineData}
                     width={800}
                     height={270}
@@ -386,13 +402,40 @@ const Coop = () => {
                       backgroundGradientFrom: '#ffffff',
                       backgroundGradientTo: '#ffffff',
                       decimalPlaces: 0,
-                      skipLabels: 2, // Skip every 2nd label
                       color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
                       labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                     }}
                   
                   />
-                
+                  {tooltipData && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      backgroundColor: COLORS.lightWhite,
+                      alignItems: "center",
+                      top: tooltipData.y,
+                      left: tooltipData.x,
+                      paddingVertical: 5,
+                      paddingHorizontal: 5,
+                      borderBottomEndRadius: SIZES.small,
+                      borderBottomLeftRadius: SIZES.small,
+                      borderTopRightRadius: SIZES.small,
+                      ...SHADOWS.medium,
+                      zIndex: 1000,
+                    }}
+                  > 
+                    <View style={{ flexDirection: "row", alignItems: "center"}}>
+                      <Text style={{ fontFamily: FONT.medium }}>Count: </Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.value}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", alignItems: "center"}}>
+                      <Text style={{ fontFamily: FONT.medium }}>Date: </Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.label}</Text>
+                    </View>
+                    
+                  </View>
+                )}
+                </View>
               ) : (
                 <ActivityIndicator size="large" color="blue" />
               )}
@@ -411,26 +454,54 @@ const Coop = () => {
             </View>
           
             {mortCount.length > 0 ? (
+              <View>
                 <LineChart
+                  onDataPointClick={handleDataPointClick}
                   data={mortLineData}
                   width={screenWidth}
                   height={270}
                   yAxisLabel=""
                   yAxisSuffix=""
                   bezier
-                  // verticalLabelRotation={30}
                   chartConfig={{
                     backgroundColor: '#ffffff',
                     backgroundGradientFrom: '#ffffff',
                     backgroundGradientTo: '#ffffff',
                     decimalPlaces: 0,
-                    skipLabels: 2, // Skip every 2nd label
                     color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
                     labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                   }}
                 
                 />
-              
+                {tooltipData && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      backgroundColor: COLORS.lightWhite,
+                      alignItems: "center",
+                      top: tooltipData.y,
+                      left: tooltipData.x,
+                      paddingVertical: 5,
+                      paddingHorizontal: 5,
+                      borderBottomEndRadius: SIZES.small,
+                      borderBottomLeftRadius: SIZES.small,
+                      borderTopRightRadius: SIZES.small,
+                      ...SHADOWS.medium,
+                      zIndex: 1000,
+                    }}
+                  > 
+                    <View style={{ flexDirection: "row", alignItems: "center"}}>
+                      <Text style={{ fontFamily: FONT.medium }}>Count: </Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.value}</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", alignItems: "center"}}>
+                      <Text style={{ fontFamily: FONT.medium }}>Date: </Text>
+                      <Text style={{ fontFamily: FONT.regular }}>{tooltipData.label}</Text>
+                    </View>
+                    
+                  </View>
+                )}
+              </View>
             ) : (
               <ActivityIndicator size="large" color="blue" />
             )}

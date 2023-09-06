@@ -89,6 +89,7 @@ const CoopFarmer = () => {
                 style={[styles.modalButton, styles.yesButton]}
                 onPress={() => {
                   handleConfirm();
+                  setIsConfirmationModalVisible(false);
                   setIsFilterVisible(false);
                   getBatchList();
                 }}
@@ -181,6 +182,7 @@ const CoopFarmer = () => {
       batch_no: batchNumber,
       cycle_started: firebase.firestore.FieldValue.serverTimestamp(),
       cycle_expected_end_date: futureDate,
+      isHarvested: false,
       no_of_chicken: parseInt(numberOfChickens),
     };
   
@@ -195,7 +197,7 @@ const CoopFarmer = () => {
     }
     
     console.log('Batch added successfully');
-    setIsConfirmationModalVisible(false);
+    // setIsConfirmationModalVisible(false);
   };
 
   const handleConfirmModal = () => {

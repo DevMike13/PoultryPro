@@ -10,6 +10,7 @@ import { FONT, SIZES, COLORS } from '../../../../constants/theme';
 import styles from './death.style';
 
 import firebase from '../../../../firebase';
+import { tr } from 'date-fns/locale';
 
 
 const DeathFarmer = () => {
@@ -25,6 +26,7 @@ const DeathFarmer = () => {
   const [btData, setBtData] = useState([]);
 
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const ConfirmationModal = () => {
     return (
@@ -73,11 +75,6 @@ const DeathFarmer = () => {
   };
 
   const successToast = () => {
-      //function to make Toast With Duration
-    //   ToastAndroid.showWithGravity('Mortality Added', 
-    //   ToastAndroid.LONG,
-    //   ToastAndroid.CENTER
-    // );
     Toast.show({
       type: 'success',
       text1: 'Mortality Added',
@@ -85,8 +82,17 @@ const DeathFarmer = () => {
     });
   };
 
+  const noBatchToast = () => {
+    Toast.show({
+      type: 'info',
+      text1: "There's no ongoing cycle. Create a new batch!",
+      visibilityTime: 5000, // Adjust as needed
+    });
+  };
+
   const addMortalityData = async () => {
     try {
+      setIsSaving(true); 
       const firestore = firebase.firestore();
       const batch = firestore.batch();
   
@@ -113,6 +119,8 @@ const DeathFarmer = () => {
     } catch (error) {
       console.error('Error adding mortality data:', error);
       console.log(batchNo);
+    } finally {
+      setIsSaving(false); // End loading state
     }
   };
   
@@ -223,95 +231,104 @@ const DeathFarmer = () => {
     <SafeAreaView style={styles.container}>
       <ConfirmationModal/>
       <ScrollView showsVerticalScrollIndicator={true} style={{ paddingVertical: 30 }}>
-        <View style={styles.firstContainer}>
-          {/* CYCLE */}
-          <View style={styles.cycleContainer}>
-            
-              {isLoading ? (
-                <ActivityIndicator size="large" color="blue" />
-              ) : (
-                <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{btData.batch_no}</Text>
-              )}
-          
-            <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
-              <Ionicons
-                  name="logo-buffer"
-                  size={18}
-              />
-              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
-                Batch No.
-              </Text>
-            </View>
-          </View>
-
-          {/* HUMIDITY AND TEMP */}
-          <View style={styles.tempHumidityContainer1}>
-            <View>
-              <Text style={{ fontFamily: FONT.bold}}>
-                Cycle Duration
-              </Text>
-            </View>
-            <View style={styles.tempHumidityContainer}>
-              <View style={styles.tempHumidityContent}>
-                {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>70%</Text> */}
-                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#FF5733" }}>Start</Text>
+        { btData.isHarvested != true ? (
+          <View style={styles.firstContainer}>
+            {/* CYCLE */}
+            <View style={styles.cycleContainer}>
+              
                 {isLoading ? (
                   <ActivityIndicator size="large" color="blue" />
                 ) : (
-                  <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatFirestoreTimestamp(btData.cycle_started)}</Text>
+                  <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{btData.batch_no}</Text>
                 )}
+            
+              <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
+                <Ionicons
+                    name="logo-buffer"
+                    size={18}
+                />
+                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
+                  Batch No.
+                </Text>
               </View>
-              <View style={styles.tempHumidityContent}>
-                {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>32 C°</Text> */}
-                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#ff0000" }}>End</Text>
+            </View>
+
+            {/* HUMIDITY AND TEMP */}
+            <View style={styles.tempHumidityContainer1}>
+              <View>
+                <Text style={{ fontFamily: FONT.bold}}>
+                  Cycle Duration
+                </Text>
+              </View>
+              <View style={styles.tempHumidityContainer}>
+                <View style={styles.tempHumidityContent}>
+                  {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>70%</Text> */}
+                  <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#FF5733" }}>Start</Text>
+                  {isLoading ? (
+                    <ActivityIndicator size="large" color="blue" />
+                  ) : (
+                    <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatFirestoreTimestamp(btData.cycle_started)}</Text>
+                  )}
+                </View>
+                <View style={styles.tempHumidityContent}>
+                  {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>32 C°</Text> */}
+                  <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#ff0000" }}>End</Text>
+                  {isLoading ? (
+                    <ActivityIndicator size="large" color="blue" />
+                  ) : (
+                    <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatFirestoreTimestamp(btData.cycle_expected_end_date)}</Text>
+                  )}
+                  
+                </View>
+              </View>
+            </View>
+          </View>
+        ) : (
+          <></>
+        )}
+        
+        { btData.isHarvested != true ? (
+          <View style={styles.firstContainer}>
+            {/* CYCLE */}
+            <View style={styles.cycleContainer}>
+              
                 {isLoading ? (
                   <ActivityIndicator size="large" color="blue" />
                 ) : (
-                  <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatFirestoreTimestamp(btData.cycle_expected_end_date)}</Text>
+                  <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{daysBetweenRounded}</Text>
                 )}
-                
+            
+              <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
+                <Ionicons
+                    name="sunny"
+                    size={18}
+                />
+                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
+                  Day No.   
+                </Text>
+              </View>
+            </View>
+
+            {/* HUMIDITY AND TEMP */}
+            <View style={[styles.tempHumidityContainer1, {gap: 10}]}>
+              <View>
+                <Text style={{ fontFamily: FONT.bold}}>
+                  Total Population
+                </Text>
+              </View>
+              <View style={styles.tempHumidityContainer}>
+                {isLoading ? (
+                  <ActivityIndicator size="large" color="blue" />
+                ) : (
+                  <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
+                )}
               </View>
             </View>
           </View>
-        </View>
-
-        <View style={styles.firstContainer}>
-          {/* CYCLE */}
-          <View style={styles.cycleContainer}>
-            
-              {isLoading ? (
-                <ActivityIndicator size="large" color="blue" />
-              ) : (
-                <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{daysBetweenRounded}</Text>
-              )}
-          
-            <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
-              <Ionicons
-                  name="sunny"
-                  size={18}
-              />
-              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
-                Day No.   
-              </Text>
-            </View>
-          </View>
-
-          {/* HUMIDITY AND TEMP */}
-          <View style={[styles.tempHumidityContainer1, {gap: 10}]}>
-            <View>
-              <Text style={{ fontFamily: FONT.bold}}>
-                Total Population
-              </Text>
-            </View>
-            <View style={styles.tempHumidityContainer}>
-              {isLoading ? (
-                <ActivityIndicator size="large" color="blue" />
-              ) : (
-                <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
-              )}
-            </View>
-          </View>
-        </View>
+        ) : (
+          <></>
+        )}
+        
         <View style={styles.contentContainer}>
           <Text style={styles.contentHeader}>Chicken died today</Text>
           <View style={styles.divider}></View>
@@ -332,33 +349,28 @@ const DeathFarmer = () => {
               />
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.confirmBtn} onPress={() =>{
-            handleConfirmModal();
-          }}>
-            <Text style={styles.confirmBtnText}>
-              Confirm
-            </Text>
-          </TouchableOpacity>
-
-          {/* <View style={{ width: "100%", flexDirection : "row", justifyContent: "space-around", marginTop: 50 }}>
-            <View style={styles.contentContainer}>
-              <Text style={styles.contentHeader}>Total Population</Text>
-              {isLoading ? (
-                <ActivityIndicator size="large" color="blue" />
+          { btData.length <= 0 || btData.isHarvested != false ? (
+             <TouchableOpacity style={[styles.confirmBtn, { opacity: 0.5 }]} onPress={() =>{
+              noBatchToast();
+            }}>
+              <Text style={styles.confirmBtnText}>
+                Confirm
+              </Text>
+            </TouchableOpacity>
+            
+          ) : (
+            <TouchableOpacity style={styles.confirmBtn} onPress={() =>{
+              handleConfirmModal();
+            }}>
+               {isSaving ? ( // Show Activity Indicator when saving/loading
+                <ActivityIndicator size="small" color="white" />
               ) : (
-                <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
+                <Text style={styles.confirmBtnText}>
+                  Confirm
+                </Text>
               )}
-            </View>
-            <View style={styles.contentContainer}>
-              <Text style={styles.contentHeader}>Population after </Text>
-              {isLoading ? (
-                <ActivityIndicator size="large" color="blue" />
-              ) : (
-                <Text style={styles.contentValueText}>{btData.no_of_chicken.toLocaleString()}</Text>
-              )}
-            </View>
-          </View> */}
-
+            </TouchableOpacity>
+          )}
           <View style={styles.dateContainer}>
             <Text style={styles.dateText}>Date: </Text>
             <TouchableOpacity onPress={toggleDatePicker} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 20, paddingVertical: 5, flexDirection: "row", gap: 15, borderRadius: SIZES.small }}>
@@ -378,8 +390,6 @@ const DeathFarmer = () => {
                 onChange={handleDateChange}
               />
             )}
-            {/* <Text style={styles.dateText}>{`Your're in day ${daysBetweenRounded} in current cycle.`}</Text>
-            <View style={styles.divider}></View> */}
           </View> 
         </View>
       </ScrollView>
