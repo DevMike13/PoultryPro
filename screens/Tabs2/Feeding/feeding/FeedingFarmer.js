@@ -5,9 +5,11 @@ import { COLORS, FONT, SIZES } from '../../../../constants/theme';
 import { RadioButton } from 'react-native-paper';
 
 import styles from './feeding.style';
+import firebase from '../../../../firebase';
 
 const FeedingFarmer = () => {
 
+  const [ledState, setLedState] = useState("OFF");
   const [waterToggle, setWaterToggle] = useState(false);
   const [feedToggle, setFeedToggle] = useState(false);
 
@@ -45,6 +47,23 @@ const FeedingFarmer = () => {
       },
     ],
   };
+
+  // Function to toggle LED state in Firebase
+  const toggleLED = () => {
+    const newLEDState = ledState === "ON" ? "OFF" : "ON";
+    firebase.database().ref('ledState').set(newLEDState);
+    setLedState(newLEDState);
+  };
+
+   // Listen for changes to the LED state in Firebase
+   useEffect(() => {
+    const ledStateRef = firebase.database().ref('ledState');
+    ledStateRef.on('value', (snapshot) => {
+      const newLEDState = snapshot.val();
+      setLedState(newLEDState);
+    });
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity style={styles.manualBtn} onPress={toggleManualVisibility}>
@@ -62,8 +81,8 @@ const FeedingFarmer = () => {
           <View style={styles.toggleContainer}>
             <Text style={styles.toggleText}>Watering</Text>
             <Switch
-              value={waterToggle}
-              onValueChange={value => setWaterToggle(value)}
+              value={ledState === "ON"}
+              onValueChange={toggleLED}
               trackColor={{ false: COLORS.gray4, true: COLORS.tertiary}}
               thumbColor={waterToggle ? COLORS.primary : COLORS.white}
               style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }], marginTop: 20 }}
