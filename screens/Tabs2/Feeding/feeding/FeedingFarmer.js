@@ -9,17 +9,25 @@ import firebase from '../../../../firebase';
 
 const FeedingFarmer = () => {
 
-  const [ledState, setLedState] = useState("OFF");
+  const [wateringState, setWateringState] = useState("OFF");
+  const [feedingState, setFeedingState] = useState("OFF");
+
   const [waterToggle, setWaterToggle] = useState(false);
   const [feedToggle, setFeedToggle] = useState(false);
-
+  
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [animation] = useState(new Animated.Value(0));
 
-  const [selectedValue, setSelectedValue] = useState('1');
+  const [stateDurationValue, setStateDurationValue] = useState('0-7 days');
 
   const handleRadioChange = (value) => {
-    setSelectedValue(value);
+    setStateDurationValue(value);
+    console.log(stateDurationValue);
+  };
+
+  const handleStartButtonPress = () => {
+    // Update the selected value in Firebase Realtime Database
+    firebase.database().ref('stateDuration').set(stateDurationValue);
   };
 
   const toggleManualVisibility = () => {
@@ -48,19 +56,35 @@ const FeedingFarmer = () => {
     ],
   };
 
-  // Function to toggle LED state in Firebase
-  const toggleLED = () => {
-    const newLEDState = ledState === "ON" ? "OFF" : "ON";
-    firebase.database().ref('ledState').set(newLEDState);
-    setLedState(newLEDState);
+  // Function to toggle Watering state in Firebase
+  const toggleWatering = () => {
+    const newWateringState = wateringState === "ON" ? "OFF" : "ON";
+    firebase.database().ref('wateringState').set(newWateringState);
+    setWateringState(newWateringState);
   };
 
-   // Listen for changes to the LED state in Firebase
+   // Function to toggle Watering state in Firebase
+   const toggleFeeding = () => {
+    const newFeedingState = feedingState === "ON" ? "OFF" : "ON";
+    firebase.database().ref('feedingState').set(newFeedingState);
+    setFeedingState(newFeedingState);
+  };
+
+   // Listen for changes to the Watering state in Firebase
    useEffect(() => {
-    const ledStateRef = firebase.database().ref('ledState');
-    ledStateRef.on('value', (snapshot) => {
-      const newLEDState = snapshot.val();
-      setLedState(newLEDState);
+    const wateringStateRef = firebase.database().ref('wateringState');
+    wateringStateRef.on('value', (snapshot) => {
+      const newWateringState = snapshot.val();
+      setWateringState(newWateringState);
+    });
+  }, []);
+
+  // Listen for changes to the Watering state in Firebase
+  useEffect(() => {
+    const feedingStateRef = firebase.database().ref('feedingState');
+    feedingStateRef.on('value', (snapshot) => {
+      const newFeedingState = snapshot.val();
+      setFeedingState(newFeedingState);
     });
   }, []);
 
@@ -81,8 +105,8 @@ const FeedingFarmer = () => {
           <View style={styles.toggleContainer}>
             <Text style={styles.toggleText}>Watering</Text>
             <Switch
-              value={ledState === "ON"}
-              onValueChange={toggleLED}
+              value={wateringState === "ON"}
+              onValueChange={toggleWatering}
               trackColor={{ false: COLORS.gray4, true: COLORS.tertiary}}
               thumbColor={waterToggle ? COLORS.primary : COLORS.white}
               style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }], marginTop: 20 }}
@@ -91,8 +115,8 @@ const FeedingFarmer = () => {
           <View style={styles.toggleContainer}>
             <Text style={styles.toggleText}>Feeding</Text>
             <Switch
-              value={feedToggle}
-              onValueChange={value => setFeedToggle(value)}
+              value={feedingState === "ON"}
+              onValueChange={toggleFeeding}
               trackColor={{ false: COLORS.gray4, true: COLORS.tertiary}}
               thumbColor={feedToggle ? COLORS.primary : COLORS.white}
               style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }], marginTop: 20 }}
@@ -102,15 +126,15 @@ const FeedingFarmer = () => {
       )}
       
       <View style={styles.radioContianer}>
-        <RadioButton.Group onValueChange={handleRadioChange} value={selectedValue}>
+        <RadioButton.Group onValueChange={handleRadioChange} value={stateDurationValue}>
             <View>
-                <RadioButton.Item label="0-7 days" value="1" labelStyle={{ fontFamily: FONT.medium }}/>
-                <RadioButton.Item label="7-14 days" value="2" labelStyle={{ fontFamily: FONT.medium }}/>
-                <RadioButton.Item label="14-28 days" value="3" labelStyle={{ fontFamily: FONT.medium }}/>
+                <RadioButton.Item label="0-7 days" value="0-7 days" labelStyle={{ fontFamily: FONT.medium }}/>
+                <RadioButton.Item label="7-14 days" value="7-14 days" labelStyle={{ fontFamily: FONT.medium }}/>
+                <RadioButton.Item label="14-28 days" value="14-28 days" labelStyle={{ fontFamily: FONT.medium }}/>
             </View> 
         </RadioButton.Group>
 
-        <TouchableOpacity style={styles.startBtn}> 
+        <TouchableOpacity style={styles.startBtn} onPress={handleStartButtonPress}> 
           <Text style={styles.startBtnText}>
             Start
           </Text>
