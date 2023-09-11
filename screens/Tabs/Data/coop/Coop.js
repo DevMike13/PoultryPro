@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, Animated, Dimensions } from 'react-native';
 import { FONT, SIZES, COLORS, SHADOWS } from '../../../../constants/theme';
-import { BarChart, LineChart } from 'react-native-chart-kit';
+import { BarChart, LineChart, PieChart, ProgressChart } from 'react-native-chart-kit';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import firebase from '../../../../firebase';
@@ -32,6 +32,12 @@ const Coop = () => {
   const [mortCount, setMortCount] = useState([]);
 
   const [tooltipData, setTooltipData] = useState(null);
+
+  const [harvestData, setHarvestData] = useState([]);
+  const [totalMortalityCount, setTotalMortalityCount] = useState(0);
+  const [currentPopulation, setCurrentPopulation] = useState(0);
+
+  const [pieData, setPieData] = useState([]);
 
   const [mortalityChartData, setMortalityChartData] = useState({
     labels: [],
@@ -111,6 +117,7 @@ const Coop = () => {
       setSelectedOption(fetchedBatchNoList[0]);
       fetchMortalityData(fetchedBatchNoList[0]);
       fetchBatchInfo(fetchedBatchNoList[0]);
+      fetchPieData(fetchedBatchNoList[0]);
       setIsLoading(false); 
     }); 
   };
@@ -123,7 +130,57 @@ const Coop = () => {
     setSelectedOption(no);
     fetchMortalityData(no);
     fetchBatchInfo(no);
+    fetchPieData(no);
     setIsDropdownOpen(false);
+  };
+  
+  const fetchPieData = async (selectedBatchNo) => {
+    try {
+      const db = firebase.firestore();
+      
+      // Fetch current population (no_of_chickens)
+      const batchRef = db.collection('batch'); // Replace with your collection name
+      const query = batchRef.where('batch_no', '==', selectedBatchNo);
+      const querySnapshot = await query.get();
+      
+      const chickensData = [];
+  
+      // Loop through the documents (there should be only one document matching the batch_no)
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        // Assuming 'no_of_chickens' is a numeric field in Firestore
+        const noOfChickens = data.no_of_chicken;
+        chickensData.push(noOfChickens);
+      });
+      
+      // Get the first (and only) element of the array
+      const currentPopulation = chickensData[0];
+
+      // Now, fetch the sum of mortality_count
+      const mortalityRef = db.collection('mortality'); // Replace with your "mortality" collection name
+      const mortalityQuery = mortalityRef.where('batch_no', '==', selectedBatchNo);
+      const mortalityQuerySnapshot = await mortalityQuery.get();
+  
+      let mortalityTotal = 0;
+  
+      mortalityQuerySnapshot.forEach((mortalityDoc) => {
+        const mortalityData = mortalityDoc.data();
+        mortalityTotal += mortalityData.mortality_count;
+      });
+  
+      // Calculate the percentages
+      
+      const mortality = mortalityTotal;
+  
+      setCurrentPopulation(currentPopulation); 
+      setTotalMortalityCount(mortality);
+      setIsLoading(false);
+      // Now, you can safely log the values
+      
+    } catch (error) {
+      console.error('Error fetching mortality data:', error);
+      // Handle the error as needed
+    }
   };
   
   const fetchMortalityData = async (selectedBatchNo) => {
@@ -201,7 +258,7 @@ const Coop = () => {
       console.error('Error fetching data:', error);
     }
   };
- 
+
   const mortLineData = {
     labels: mortLabel,
     datasets: [
@@ -211,6 +268,12 @@ const Coop = () => {
     ],
   };
 
+
+  const pieTempData = [
+    { name: 'Population', population: currentPopulation, color: '#1ABC9C' },
+    { name: 'Mortality', population: totalMortalityCount, color: '#E74C3C'  },
+  ]
+  
   const handleDataPointClick = (data) => {
     if (tooltipData && tooltipData.index === data.index) {
       // If the tooltip is already open for this data point, close it
@@ -309,71 +372,29 @@ const Coop = () => {
         </View>
       </View>
       <ScrollView showsVerticalScrollIndicator={true} contentContainerStyle={styles.scrollView}>
-      { mortCount.length > 7 ? (
-        <ScrollView horizontal>
-        {/* Broiler Chicken Graph */}
           <View style={styles.chartContainer}>
-            <View style={styles.chartHeaderContainer}>
-              <Text style={styles.chartTitle}>No. of Boiler Chicken</Text>
-              {mortCount.length > 0 ? (
-                <Text style={styles.chartDate}>{formatGetSpecificMonth(batchInfo.cycle_started)} - {formatGetSpecificMonth(batchInfo.cycle_expected_end_date)}</Text>
-              ) : (
-                <ActivityIndicator size="large" color="blue" />
-              )}
-            </View>
-            {mortCount.length > 0 ? (
-              <BarChart
-                data={mortLineData}
-                width={800}
-                height={220}
-                yAxisLabel=""
-                yAxisSuffix=""
-                chartConfig={{
-                  backgroundColor: '#ffffff',
-                  backgroundGradientFrom: '#ffffff',
-                  backgroundGradientTo: '#ffffff',
-                  decimalPlaces: 0,
-                  color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
-                }}
-                style={styles.chart}
-              />
-            ) : (
+            <Text style={{ fontFamily: FONT.medium, alignSelf: "flex-start", paddingLeft: 10, fontSize: SIZES.medium }}>Population & Mortality</Text>
+            {isLoading ? (
               <ActivityIndicator size="large" color="blue" />
-            )} 
-          </View>
-        </ScrollView>
-      ) : (
-        <View style={styles.chartContainer}>
-          <View style={styles.chartHeaderContainer}>
-            <Text style={styles.chartTitle}>No. of Boiler Chicken</Text>
-            {mortCount.length > 0 ? (
-              <Text style={styles.chartDate}>{formatGetSpecificMonth(batchInfo.cycle_started)} - {formatGetSpecificMonth(batchInfo.cycle_expected_end_date)}</Text>
             ) : (
-              <ActivityIndicator size="large" color="blue" />
+              
+                <PieChart
+                  data={pieTempData}
+                  width={400}
+                  height={220}
+                  chartConfig={{
+                    backgroundColor: '#ffffff',
+                    backgroundGradientFrom: '#ffffff',
+                    backgroundGradientTo: '#ffffff',
+                    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  }}
+                  avoidFalseZero={true}
+                  accessor="population"
+                  backgroundColor="transparent"
+                />
+          
             )}
-          </View>
-          {mortCount.length > 0 ? (
-            <BarChart
-              data={mortLineData}
-              width={screenWidth}
-              height={220}
-              yAxisLabel=""
-              yAxisSuffix=""
-              chartConfig={{
-                backgroundColor: '#ffffff',
-                backgroundGradientFrom: '#ffffff',
-                backgroundGradientTo: '#ffffff',
-                decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
-              }}
-              style={styles.chart}
-            />
-          ) : (
-            <ActivityIndicator size="large" color="blue" />
-          )} 
         </View>
-      )}
-      
         { mortCount.length > 7 ? (
           <ScrollView horizontal>
             <View style={styles.chartContainer}>

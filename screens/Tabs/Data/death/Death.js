@@ -1,41 +1,165 @@
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView, Text, View } from 'react-native';
+import { SafeAreaView, Text, View, ActivityIndicator } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 
 import firebase from '../../../../firebase';
 
 import styles from './death.style';
+import { COLORS, FONT, SIZES, SHADOWS } from '../../../../constants/theme';
 const Death = () => {
 
-  const mortData = {
-    labels: ['Day 1', 'Day 2', 'Day 3', ' Day 4', 'Day 5', 'Day 6'],
-    datasets: [
+  const [batchNumbers, setBatchNumbers] = useState([]);
+  const [batchMortalityData, setBatchMortalityData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // Add isLoading state
+
+  const [tooltipData, setTooltipData] = useState(null);
+
+  useEffect(() => {
+    // Reference to the Firestore collection
+    const collectionRef = firebase.firestore().collection('batch');
+
+    // Fetch the data
+    collectionRef.get().then((querySnapshot) => {
+      const batchNumbersArray = [];
+
+      querySnapshot.forEach((doc) => {
+        const batchData = doc.data();
+        // Assuming 'batch_no' is the field name in your Firestore documents
+        const batchNo = batchData.batch_no;
+        const formattedBatchNo = `Batch ${batchNo}`; // Add "Batch" to the value
+        batchNumbersArray.push(formattedBatchNo);
+      });
+
+      // Set the state variable with the batch numbers array
+      setBatchNumbers(batchNumbersArray);
+    });
+  }, []); // Empty dependency array to ensure the effect runs only once
+
+  
+  useEffect(() => {
+    // Reference to the Firestore collection
+    const collectionRef = firebase.firestore().collection('mortality');
+
+    // Fetch the data and sort by batch_no
+    collectionRef.orderBy('batch_no').get().then((querySnapshot) => {
+      const batchMortalityMap = new Map();
+
+      querySnapshot.forEach((doc) => {
+        const mortalityData = doc.data();
+        const batchNo = mortalityData.batch_no;
+        const mortalityCount = mortalityData.mortality_count;
+
+        // If the batch already exists in the map, update the mortality count
+        if (batchMortalityMap.has(batchNo)) {
+          const existingCount = batchMortalityMap.get(batchNo);
+          batchMortalityMap.set(batchNo, existingCount + mortalityCount);
+        } else {
+          // Otherwise, add the batch to the map with the initial mortality count
+          batchMortalityMap.set(batchNo, mortalityCount);
+        }
+      });
+
+      // Extract the summed mortality counts from the map and sort them by batch_no
+      const summedMortalityCounts = [...batchMortalityMap.values()].sort((a, b) =>
+        batchMortalityMap.get(a) - batchMortalityMap.get(b)
+      );
+
+      // Set the state variable with the summed mortality counts
+      setBatchMortalityData(summedMortalityCounts);
+      setIsLoading(false);
+    });
+  }, []); // Empty dependency array to ensure the effect runs only once
+
+  
+  const mortData = {};
+
+  if (batchNumbers.length > 0 && batchMortalityData.length > 0) {
+    mortData.labels = batchNumbers;
+    mortData.datasets = [
       {
-        data: [5, 8, 6, 3, 4, 7],
+        data: batchMortalityData,
       },
-    ],
+    ];
+  } else {
+    // Add a default label and empty dataset if either or both arrays are empty
+    mortData.labels = ['No Data'];
+    mortData.datasets = [
+      {
+        data: [0], // You can set this to any default value you prefer
+      },
+    ];
+  }
+
+  const handleDataPointClick = (data) => {
+    if (tooltipData && tooltipData.index === data.index) {
+      // If the tooltip is already open for this data point, close it
+      setTooltipData(null);
+    } else {
+      // If the tooltip is not open or is open for a different data point, open it
+      const index = data.index;
+      const value = mortData.datasets[0].data[index];
+      const label = mortData.labels[index];
+      setTooltipData({ x: data.x, y: data.y, value, label, index });
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
         <View style={styles.chartContainer}>
           <Text style={styles.headerTitle}>Mortality Rate</Text>
-          <LineChart
-            data={mortData}
-            width={390}
-            height={220}
-            yAxisLabel=""
-            yAxisSuffix=""
-            chartConfig={{
-              backgroundColor: '#ffffff',
-              backgroundGradientFrom: '#ffffff',
-              backgroundGradientTo: '#ffffff',
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            }}
-            style={styles.chart}
-          />
+          { isLoading && batchNumbers.length <= 0 && batchMortalityData.length <= 0 ? (
+            <ActivityIndicator size="large" color="blue" />
+          ) : (
+            <View>
+              <LineChart
+                bezier
+                onDataPointClick={handleDataPointClick}
+                data={mortData}
+                width={390}
+                height={220}
+                yAxisLabel=""
+                yAxisSuffix=""
+                chartConfig={{
+                  backgroundColor: '#ffffff',
+                  backgroundGradientFrom: '#ffffff',
+                  backgroundGradientTo: '#ffffff',
+                  strokeWidth: 2, // optional, default 3
+                  decimalPlaces: 0,
+                  color: (opacity = 1) => `rgba(230, 0, 0, ${opacity})`,
+                }}
+                style={styles.chart}
+              />
+              {tooltipData && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    backgroundColor: COLORS.lightWhite,
+                    alignItems: "center",
+                    top: tooltipData.y,
+                    left: tooltipData.x,
+                    paddingVertical: 5,
+                    paddingHorizontal: 5,
+                    borderBottomEndRadius: SIZES.small,
+                    borderBottomLeftRadius: SIZES.small,
+                    borderTopRightRadius: SIZES.small,
+                    ...SHADOWS.medium,
+                    zIndex: 1000,
+                  }}
+                > 
+                  <View style={{ flexDirection: "row", alignItems: "center"}}>
+                    <Text style={{ fontFamily: FONT.medium }}>Count: </Text>
+                    <Text style={{ fontFamily: FONT.regular }}>{tooltipData.value}</Text>
+                  </View>
+                  <View style={{ flexDirection: "row", alignItems: "center"}}>
+                    <Text style={{ fontFamily: FONT.medium }}>Date: </Text>
+                    <Text style={{ fontFamily: FONT.regular }}>{tooltipData.label}</Text>
+                  </View>
+                  
+                </View>
+              )}
+            </View>
+          )}   
         </View>
     </SafeAreaView>
   )

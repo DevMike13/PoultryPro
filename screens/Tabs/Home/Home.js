@@ -14,6 +14,7 @@ const Home = ({ navigation }) => {
   const [temperature, setTemperature] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notificationSent, setNotificationSent] = useState(false); // Track if notification has been sent
+  const [batchNo, setBatchNo] = useState('');
 
   const handleLogout = async () => {
     try {
@@ -28,6 +29,30 @@ const Home = ({ navigation }) => {
     }
   };
   
+  const fetchBatchCounter = async () => {
+    const db = firebase.firestore();
+  
+    try {
+      const counterDocRef = db.collection('meta').doc('counters');
+      const counterDoc = await counterDocRef.get();
+  
+      if (counterDoc.exists) {
+        const batchCounterValue = counterDoc.data().batchCounter - 1;
+        setBatchNo(batchCounterValue);
+        console.log(batchCounterValue);
+      } else {
+        console.log('Counters document does not exist.');
+      }
+    } catch (error) {
+      console.error('Error fetching batch counter:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch the batch counter value and update batchNo state
+    fetchBatchCounter();
+  }, []);
+
   useEffect(() => {
     // Set up Firebase real-time listeners
     const humidityRef = firebase.database().ref('humidity');
@@ -80,6 +105,46 @@ const Home = ({ navigation }) => {
     };
   }, [notificationSent]);
 
+  useEffect(() => {
+    // Function to store data in Firestore
+    const storeDataInFirestore = () => {
+      console.log('Storing data in Firestore...');
+      const db = firebase.firestore();
+      const firestoreCollection = db.collection('temp&humid');
+
+      // Combine temperature and humidity data into a single object with a timestamp
+      const dataToStore = {
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        batch_no: batchNo,
+        temperature,
+        humidity,
+
+      };
+
+      // Add the combined data to Firestore as a new document
+      firestoreCollection.add(dataToStore)
+        .then((docRef) => {
+          console.log('Data stored in Firestore with ID:', docRef.id);
+        })
+        .catch((error) => {
+          console.error('Error storing data in Firestore:', error);
+        });
+    };
+
+    // Set up a timer to store data every 1 minute if both humidity and temperature are not null
+    const timer = setInterval(() => {
+      if (humidity !== null && temperature !== null) {
+        storeDataInFirestore();
+      } else {
+        console.log('Humidity or temperature is null, skipping data storage.');
+      }
+    }, 600000); // 1 minute in milliseconds
+
+    // Clean up the timer when the component unmounts
+    return () => {
+      clearInterval(timer);
+    };
+  }, [temperature, humidity]);
 
   const getMeasurementTextColor = () => {
     if (temperature && temperature.temperature > 32) {

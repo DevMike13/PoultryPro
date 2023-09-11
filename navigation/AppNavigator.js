@@ -18,7 +18,7 @@ import RegisterScreen from '../screens/Registration/RegisterScreen';
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
         shouldShowAlert: true,
-        shouldPlaySound: false,
+        shouldPlaySound: true,
         shouldSetBadge: false,
     }),
 });
@@ -33,7 +33,7 @@ const AppNavigator = () => {
 
     // Inside your App component 
     useEffect(() => {
-        registerForPushNotificationsAsync();
+        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
         requestNotificationPermission();
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
           setNotification(notification);

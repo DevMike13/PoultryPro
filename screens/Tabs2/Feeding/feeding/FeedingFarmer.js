@@ -4,6 +4,7 @@ import { SafeAreaView, Text, View, ScrollView, Switch, Animated, TouchableOpacit
 import { COLORS, FONT, SIZES } from '../../../../constants/theme';
 import { RadioButton } from 'react-native-paper';
 
+import { schedulePushNotification } from '../../../../utils/notification';
 import styles from './feeding.style';
 import firebase from '../../../../firebase';
 
@@ -19,6 +20,9 @@ const FeedingFarmer = () => {
   const [animation] = useState(new Animated.Value(0));
 
   const [stateDurationValue, setStateDurationValue] = useState('0-7 days');
+  const [stateDuration, setStateDuration] = useState('');
+
+  const [notificationSent, setNotificationSent] = useState(false); // Track if notification has been sent
 
   const handleRadioChange = (value) => {
     setStateDurationValue(value);
@@ -87,6 +91,44 @@ const FeedingFarmer = () => {
       setFeedingState(newFeedingState);
     });
   }, []);
+
+  // Listen for changes to the stateDuration in Firebase Realtime Database
+  useEffect(() => {
+    const stateDurationRef = firebase.database().ref('stateDuration');
+
+     // Listen for changes in temperature data
+     stateDurationRef.on('value', (snapshot) => {
+      try {
+        const stateDurationVal = snapshot.val();
+        setStateDuration(stateDurationVal);
+
+        // Check if temperature is greater than 32°C and send a notification
+        if (stateDurationVal && stateDurationVal == "0-7 days" && !notificationSent) {
+          // Adjust the notification message as needed
+          schedulePushNotification('Feeding & Watering', '0-7 days started');
+          setNotificationSent(true); // Mark notification as sent
+        } else if (stateDurationVal && stateDurationVal == "7-14 days" && !notificationSent) {
+          // Adjust the notification message as needed
+          schedulePushNotification('Feeding & Watering', '7-14 days started');
+          setNotificationSent(true); // Mark notification as sent
+        } else if (stateDurationVal && stateDurationVal == "14-28 days" && !notificationSent){
+           // Adjust the notification message as needed
+           schedulePushNotification('Feeding & Watering', '14-28 days started');
+           setNotificationSent(true); // Mark notification as sent
+        } else {
+          setNotificationSent(false); // Mark notification as sent
+        }
+      } catch (error) {
+        console.error('Error reading temperature:', error);
+        setLoading(false); // Stop loading in case of an error
+      }
+    });
+
+    // Clean up the listener when the component unmounts
+    return () => {
+      stateDurationRef.off();
+    };
+  }, [stateDuration]);
 
   return (
     <SafeAreaView style={styles.container}>
