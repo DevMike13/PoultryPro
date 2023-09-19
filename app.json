@@ -6,9 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "notification": {
-      "handler": "BackgroundNotification"
-    },
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -21,7 +18,7 @@
       "supportsTablet": true
     },
     "android": {
-      "package" : "com.safeMike.poultrypro",
+      "package": "com.safeMike.poultrypro",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

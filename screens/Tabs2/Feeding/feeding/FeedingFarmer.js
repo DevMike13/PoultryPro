@@ -162,10 +162,10 @@ const FeedingFarmer = () => {
     firebase.database().ref('scheduleDate').set(formatDate(selectedDate));
     firebase.database().ref('stateDuration').set(stateDurationValue);
     // Update the values to On Going
-    firebase.database().ref('6AM').set("On Going");
-    firebase.database().ref('10AM').set("On Going");
-    firebase.database().ref('1PM').set("On Going");
-    firebase.database().ref('10PM').set("On Going");
+    firebase.database().ref('6AM').set("Sched");
+    firebase.database().ref('10AM').set("Sched");
+    firebase.database().ref('1PM').set("Sched");
+    firebase.database().ref('10PM').set("Sched");
   };
 
   const toggleManualVisibility = () => {

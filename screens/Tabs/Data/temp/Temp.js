@@ -59,15 +59,15 @@ const Temp = () => {
           const date = timestamp.toISOString().split('T')[0]; // Extract the date part
 
           // Check if temperature data is available and not NaN
-          if (!isNaN(docData.temperature.temperature)) {
+          if (!isNaN(docData.temperature)) {
             // If the date exists in the map, update the highest temperature
             if (dataMap.has(date)) {
               const currentMaxTemp = dataMap.get(date);
-              const newMaxTemp = Math.max(currentMaxTemp, docData.temperature.temperature);
+              const newMaxTemp = Math.max(currentMaxTemp, docData.temperature);
               dataMap.set(date, newMaxTemp);
             } else {
               // If the date doesn't exist, create a new entry
-              dataMap.set(date, docData.temperature.temperature);
+              dataMap.set(date, docData.temperature);
             }
           }
         });
@@ -117,15 +117,15 @@ const Temp = () => {
           const date = timestamp.toISOString().split('T')[0]; // Extract the date part
 
           // Check if temperature data is available and not NaN
-          if (!isNaN(docData.humidity.humidity)) {
+          if (!isNaN(docData.humidity)) {
             // If the date exists in the map, update the highest temperature
             if (dataMap.has(date)) {
               const currentMaxHum = dataMap.get(date);
-              const newMaxHum = Math.max(currentMaxHum, docData.humidity.humidity);
+              const newMaxHum = Math.max(currentMaxHum, docData.humidity);
               dataMap.set(date, newMaxHum);
             } else {
               // If the date doesn't exist, create a new entry
-              dataMap.set(date, docData.humidity.humidity);
+              dataMap.set(date, docData.humidity);
             }
           }
         });

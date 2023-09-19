@@ -53,17 +53,17 @@ const HomeFarmer = ({ navigation }) => {
         setLoading(false); // Stop loading when data is available
 
         // Check if temperature is greater than 32°C and send a notification
-        if (temperatureValue && temperatureValue.temperature > 32 && !notificationSent) {
-          // Adjust the notification message as needed
-          schedulePushNotification('High Temperature Alert', 'Temperature is above 32°C');
-          setNotificationSent(true); // Mark notification as sent
-        } else if (temperatureValue && temperatureValue.temperature < 18  && !notificationSent) {
-          // Adjust the notification message as needed
-          schedulePushNotification('Low Temperature Alert', 'Temperature is below 18°C');
-          setNotificationSent(true); // Mark notification as sent
-        } else if (temperatureValue && temperatureValue.temperature >= 18 && temperatureValue.temperature <= 32){
-          setNotificationSent(false);
-        }
+        // if (temperatureValue && temperatureValue.temperature > 32 && !notificationSent) {
+        //   // Adjust the notification message as needed
+        //   schedulePushNotification('High Temperature Alert', 'Temperature is above 32°C');
+        //   setNotificationSent(true); // Mark notification as sent
+        // } else if (temperatureValue && temperatureValue.temperature < 18  && !notificationSent) {
+        //   // Adjust the notification message as needed
+        //   schedulePushNotification('Low Temperature Alert', 'Temperature is below 18°C');
+        //   setNotificationSent(true); // Mark notification as sent
+        // } else if (temperatureValue && temperatureValue.temperature >= 18 && temperatureValue.temperature <= 32){
+        //   setNotificationSent(false);
+        // }
       } catch (error) {
         console.error('Error reading temperature:', error);
         setLoading(false); // Stop loading in case of an error
