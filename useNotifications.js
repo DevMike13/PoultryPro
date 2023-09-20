@@ -7,6 +7,8 @@ import Constants from "expo-constants";
 
 import { Platform } from "react-native";
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export const usePushNotifications = () => {
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
@@ -89,15 +91,21 @@ export const usePushNotifications = () => {
 
     const storeDeviceTokenInFirestore = async (token) => {
       try {
-        // Store the device token in Firestore
-        const db = firebase.firestore();
-        const deviceTokensRef = db.collection('deviceTokens');
-        
-        await deviceTokensRef.add({
-          token: token,
-        });
-  
-        console.log('Device Token stored in Firestore:', token);
+        // Store the device token in Firestore only if it hasn't been stored before
+        const tokenExists = await AsyncStorage.getItem('expoPushTokenStored');
+        if (!tokenExists) {
+          const db = firebase.firestore();
+          const deviceTokensRef = db.collection('deviceTokens');
+
+          await deviceTokensRef.add({
+              token: token,
+          });
+
+          console.log('Device Token stored in Firestore:', token);
+
+          // Mark that the token has been stored to prevent redundant storage
+          await AsyncStorage.setItem('expoPushTokenStored', 'true');
+        }
       } catch (error) {
         console.error('Error storing device token in Firestore:', error);
       }
