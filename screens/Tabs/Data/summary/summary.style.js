@@ -4,8 +4,7 @@ import { COLORS, FONT, SHADOWS, SIZES } from "../../../../constants/theme";
 
 const styles = StyleSheet.create({
     container:{
-        alignItems: "center",
-        justifyContent: "center",
+        flex: 1,
         paddingHorizontal: 10,
         paddingVertical: 40
     },
@@ -15,8 +14,8 @@ const styles = StyleSheet.create({
         marginBottom: SIZES.large
     },
     chartContainer:{
-        alignItems: "center",
-        justifyContent: "center",
+        // alignItems: "center",
+        // justifyContent: "center",
         marginBottom: 40
     }
 });

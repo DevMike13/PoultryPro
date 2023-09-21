@@ -33,6 +33,7 @@
     "react-native": "0.72.3",
     "react-native-calendars": "^1.1300.0",
     "react-native-chart-kit": "^6.12.0",
+    "react-native-chart-kit-with-pressable-bar-graph": "^6.11.4",
     "react-native-gesture-handler": "^2.12.1",
     "react-native-modal-datetime-picker": "^17.1.0",
     "react-native-month-year-picker": "^1.9.0",

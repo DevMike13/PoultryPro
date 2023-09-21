@@ -15,9 +15,7 @@ const Home = ({ navigation }) => {
   const [humidity, setHumidity] = useState(null);
   const [temperature, setTemperature] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [notificationSent, setNotificationSent] = useState(false); // Track if notification has been sent
-  const [batchNo, setBatchNo] = useState('');
-
+  
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('userType');
@@ -31,30 +29,6 @@ const Home = ({ navigation }) => {
     }
   };
   
-  const fetchBatchCounter = async () => {
-    const db = firebase.firestore();
-  
-    try {
-      const counterDocRef = db.collection('meta').doc('counters');
-      const counterDoc = await counterDocRef.get();
-  
-      if (counterDoc.exists) {
-        const batchCounterValue = counterDoc.data().batchCounter - 1;
-        setBatchNo(batchCounterValue);
-        console.log(batchCounterValue);
-      } else {
-        console.log('Counters document does not exist.');
-      }
-    } catch (error) {
-      console.error('Error fetching batch counter:', error);
-    }
-  };
-
-  useEffect(() => {
-    // Fetch the batch counter value and update batchNo state
-    fetchBatchCounter();
-  }, []);
-
   useEffect(() => {
     // Set up Firebase real-time listeners
     const humidityRef = firebase.database().ref('humidity');
@@ -81,19 +55,6 @@ const Home = ({ navigation }) => {
         const temperatureValue = snapshot.val();
         setTemperature(temperatureValue);
         setLoading(false); // Stop loading when data is available
-
-        // Check if temperature is greater than 32°C and send a notification
-        // if (temperatureValue && temperatureValue.temperature > 32 && !notificationSent) {
-        //   // Adjust the notification message as needed
-        //   schedulePushNotification('High Temperature Alert', 'Temperature is above 32°C');
-        //   setNotificationSent(true); // Mark notification as sent
-        // } else if (temperatureValue && temperatureValue.temperature < 18  && !notificationSent) {
-        //   // Adjust the notification message as needed
-        //   schedulePushNotification('Low Temperature Alert', 'Temperature is below 18°C');
-        //   setNotificationSent(true); // Mark notification as sent
-        // } else if (temperatureValue && temperatureValue.temperature >= 18 && temperatureValue.temperature <= 32){
-        //   setNotificationSent(false);
-        // }
       } catch (error) {
         console.error('Error reading temperature:', error);
         setLoading(false); // Stop loading in case of an error
@@ -105,48 +66,7 @@ const Home = ({ navigation }) => {
       humidityRef.off();
       temperatureRef.off();
     };
-  }, [notificationSent]);
-
-  useEffect(() => {
-    // Function to store data in Firestore
-    const storeDataInFirestore = () => {
-      console.log('Storing data in Firestore...');
-      const db = firebase.firestore();
-      const firestoreCollection = db.collection('temp&humid');
-
-      // Combine temperature and humidity data into a single object with a timestamp
-      const dataToStore = {
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        batch_no: batchNo,
-        temperature,
-        humidity,
-
-      };
-
-      // Add the combined data to Firestore as a new document
-      firestoreCollection.add(dataToStore)
-        .then((docRef) => {
-          console.log('Data stored in Firestore with ID:', docRef.id);
-        })
-        .catch((error) => {
-          console.error('Error storing data in Firestore:', error);
-        });
-    };
-
-    // Set up a timer to store data every 1 minute if both humidity and temperature are not null
-    const timer = setInterval(() => {
-      if (humidity !== null && temperature !== null) {
-        storeDataInFirestore();
-      } else {
-        console.log('Humidity or temperature is null, skipping data storage.');
-      }
-    }, 600000); // 1 minute in milliseconds
-
-    // Clean up the timer when the component unmounts
-    return () => {
-      clearInterval(timer);
-    };
-  }, [temperature, humidity]);
+  }, []);
 
   const getMeasurementTextColor = () => {
     if (temperature && temperature.temperature > 32) {

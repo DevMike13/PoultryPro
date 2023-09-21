@@ -124,8 +124,8 @@ const CoopFarmer = () => {
     // Get the current date
     const currentDate = new Date();
 
-    // Calculate future date by adding 45 days using date-fns
-    const futureDate = addDays(currentDate, 45);
+    // Calculate future date by adding 28 days using date-fns
+    const futureDate = addDays(currentDate, 28);
 
     // Format the future date using date-fns
     const formattedFutureDate = format(futureDate, 'MMM d, yyyy');
@@ -195,7 +195,10 @@ const CoopFarmer = () => {
     } else {
       await counterDocRef.set({ batchCounter: batchNumber + 1 });
     }
-    
+
+    successBatchCreationToast();
+    setShowCreateButton(false);
+    getBatchList();
     console.log('Batch added successfully');
     // setIsConfirmationModalVisible(false);
   };
@@ -284,6 +287,15 @@ const CoopFarmer = () => {
     Toast.show({
       type: 'error',
       text1: 'Your last cycle is not finished!',
+      visibilityTime: 3000, // Adjust as needed
+    });
+  };
+
+  const successBatchCreationToast = () => {
+    //function to make Toast With Duration
+    Toast.show({
+      type: 'success',
+      text1: 'Batch created successfully!',
       visibilityTime: 3000, // Adjust as needed
     });
   };

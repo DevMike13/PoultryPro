@@ -313,21 +313,21 @@ const FeedingFarmer = () => {
         setStateDuration(stateDurationVal);
 
         // Check if temperature is greater than 32°C and send a notification
-        if (stateDurationVal && stateDurationVal == "0-7 days" && !notificationSent) {
-          // Adjust the notification message as needed
-          schedulePushNotification('Feeding & Watering', '0-7 days started');
-          setNotificationSent(true); // Mark notification as sent
-        } else if (stateDurationVal && stateDurationVal == "7-14 days" && !notificationSent) {
-          // Adjust the notification message as needed
-          schedulePushNotification('Feeding & Watering', '7-14 days started');
-          setNotificationSent(true); // Mark notification as sent
-        } else if (stateDurationVal && stateDurationVal == "14-28 days" && !notificationSent){
-           // Adjust the notification message as needed
-           schedulePushNotification('Feeding & Watering', '14-28 days started');
-           setNotificationSent(true); // Mark notification as sent
-        } else {
-          setNotificationSent(false); // Mark notification as sent
-        }
+        // if (stateDurationVal && stateDurationVal == "0-7 days" && !notificationSent) {
+        //   // Adjust the notification message as needed
+        //   schedulePushNotification('Feeding & Watering', '0-7 days started');
+        //   setNotificationSent(true); // Mark notification as sent
+        // } else if (stateDurationVal && stateDurationVal == "7-14 days" && !notificationSent) {
+        //   // Adjust the notification message as needed
+        //   schedulePushNotification('Feeding & Watering', '7-14 days started');
+        //   setNotificationSent(true); // Mark notification as sent
+        // } else if (stateDurationVal && stateDurationVal == "14-28 days" && !notificationSent){
+        //    // Adjust the notification message as needed
+        //    schedulePushNotification('Feeding & Watering', '14-28 days started');
+        //    setNotificationSent(true); // Mark notification as sent
+        // } else {
+        //   setNotificationSent(false); // Mark notification as sent
+        // }
       } catch (error) {
         console.error('Error reading temperature:', error);
         setLoading(false); // Stop loading in case of an error

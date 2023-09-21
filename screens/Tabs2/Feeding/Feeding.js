@@ -13,7 +13,7 @@ import DeathFarmer from './death/DeathFarmer';
 import HarvestFarmer from './harvest/HarvestFarmer';
 import SummaryFarmer from './summary/SummaryFarmer';
 
-const tabList = ["Coop", "Feeding", "Death", "Harvest", "Summary"];
+const tabList = ["Coop", "Feeding", "Death", "Harvest", "Batch Info"];
 
 const Feeding = () => {
 
@@ -38,9 +38,9 @@ const Feeding = () => {
           return <HarvestFarmer
               title='Harvest'
           />
-        case "Summary":
+        case "Batch Info":
           return <SummaryFarmer
-              title='Summary'
+              title='Batch Info'
           />
         default:
             break;
