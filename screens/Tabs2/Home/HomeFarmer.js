@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { format } from 'date-fns';
 import firebase from '../../../firebase';
 import { schedulePushNotification } from '../../../utils/notification';
 
@@ -11,6 +12,8 @@ const HomeFarmer = ({ navigation }) => {
   const [temperature, setTemperature] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notificationSent, setNotificationSent] = useState(false); // Track if notification has been sent
+
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const handleLogout = async () => {
     try {
@@ -86,6 +89,19 @@ const HomeFarmer = ({ navigation }) => {
       return '#90EE90'; // Normal temperature, set color to green
     }
   };
+
+  useEffect(() => {
+    // ... (your Firebase real-time listeners)
+
+    // Update the current date and time every second
+    const intervalId = setInterval(() => {
+      setCurrentDate(new Date());
+    }, 1000);
+
+    // Clean up the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <SafeAreaView style={styles.container}>
         <View style={styles.headerContainer}>
@@ -98,10 +114,10 @@ const HomeFarmer = ({ navigation }) => {
         </View>
         <View style={styles.dateContainer}>
           <Text style={styles.dateText}>
-            May 25, 2023
+            {format(currentDate, "MMM. d, yyyy")}
           </Text>
           <Text style={styles.timeText}>
-            2:36:28 PM
+            {format(currentDate, "h:mm:ss a")}
           </Text>
         </View>
 
