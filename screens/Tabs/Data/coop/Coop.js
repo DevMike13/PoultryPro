@@ -373,7 +373,7 @@ const Coop = () => {
       </View>
       <ScrollView showsVerticalScrollIndicator={true} contentContainerStyle={styles.scrollView}>
           <View style={styles.chartContainer}>
-            <Text style={{ fontFamily: FONT.medium, alignSelf: "flex-start", paddingLeft: 10, fontSize: SIZES.medium }}>Population & Mortality</Text>
+            <Text style={{ fontFamily: FONT.medium, alignSelf: "flex-start", paddingLeft: 15, fontSize: SIZES.medium }}>Population & Mortality</Text>
             {isLoading ? (
               <ActivityIndicator size="large" color="blue" />
             ) : (

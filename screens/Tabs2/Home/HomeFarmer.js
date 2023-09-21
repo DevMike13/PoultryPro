@@ -15,7 +15,8 @@ const HomeFarmer = ({ navigation }) => {
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('userType');
-  
+      await AsyncStorage.removeItem('expoPushTokenStored');
+      
       navigation.reset({
         index: 0,
         routes: [{ name: 'Login' }],

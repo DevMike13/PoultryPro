@@ -93,6 +93,8 @@ export const usePushNotifications = () => {
       try {
         // Store the device token in Firestore only if it hasn't been stored before
         const tokenExists = await AsyncStorage.getItem('expoPushTokenStored');
+        console.log(tokenExists);
+        
         if (!tokenExists) {
           const db = firebase.firestore();
           const deviceTokensRef = db.collection('deviceTokens');
