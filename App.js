@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState, useRef } from "react";
+import { Vibration, Platform } from 'react-native';
 import AppNavigator from './navigation/AppNavigator';
 import { useFonts } from 'expo-font';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Audio } from 'expo-av';
+
 
 import { usePushNotifications } from "./useNotifications";
 
@@ -45,7 +48,7 @@ const App = () => {
   }, []);
 
   const { expoPushToken } = usePushNotifications();
-  console.log(expoPushToken);
+  // console.log(expoPushToken);
 
   // Handle push notifications when the app is killed or closed
   useEffect(() => {
@@ -59,7 +62,6 @@ const App = () => {
       Notifications.removeNotificationSubscription(notificationListener);
     };
   }, []);
-
 
   const [userData, setUserData] = useState(null);
   const [loaded] = useFonts({

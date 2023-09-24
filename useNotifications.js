@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const usePushNotifications = () => {
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
-        shouldPlaySound: false,
+        shouldPlaySound: true,
         shouldShowAlert: true,
         shouldSetBadge: false,
       }),
@@ -91,23 +91,32 @@ export const usePushNotifications = () => {
 
     const storeDeviceTokenInFirestore = async (token) => {
       try {
-        // Store the device token in Firestore only if it hasn't been stored before
-        const tokenExists = await AsyncStorage.getItem('expoPushTokenStored');
-        console.log(tokenExists);
-        
-        if (!tokenExists) {
+       
           const db = firebase.firestore();
           const deviceTokensRef = db.collection('deviceTokens');
 
-          await deviceTokensRef.add({
+          // Convert the token to a string before storing it in AsyncStorage
+          const tokenString = token.data;
+
+          // Always store the token in AsyncStorage
+          await AsyncStorage.setItem('expoPushToken', tokenString);
+
+          // Check if the token already exists in Firestore
+          const querySnapshot = await deviceTokensRef.where('token.data', '==', tokenString).get();
+          
+          // console.log(querySnapshot)
+      
+          if (querySnapshot.empty) {
+            // The token is not found in Firestore, store it
+            await deviceTokensRef.add({
               token: token,
-          });
-
-          console.log('Device Token stored in Firestore:', token);
-
-          // Mark that the token has been stored to prevent redundant storage
-          await AsyncStorage.setItem('expoPushTokenStored', 'true');
-        }
+            });
+      
+            console.log('Device Token stored in Firestore:', tokenString);
+          } else {
+            console.log('Device Token already stored in Firestore:', tokenString);
+          }
+         
       } catch (error) {
         console.error('Error storing device token in Firestore:', error);
       }
@@ -121,8 +130,6 @@ export const usePushNotifications = () => {
         // Store the device token in Firestore
         storeDeviceTokenInFirestore(token);
       });
-  
-      // ... (rest of your existing code)
     }, []);
   
     return {
