@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { SafeAreaView, Text, View, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { format } from 'date-fns';
 import firebase from '../../../firebase';
@@ -18,6 +18,7 @@ const HomeFarmer = ({ navigation }) => {
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('userType');
+      await AsyncStorage.removeItem('hasSeenGuide');
      
       navigation.reset({
         index: 0,
@@ -33,7 +34,6 @@ const HomeFarmer = ({ navigation }) => {
     const humidityRef = firebase.database().ref('humidity');
     const temperatureRef = firebase.database().ref('temperature');
 
-    // Start loading
     setLoading(true);
 
     // Listen for changes in humidity data
@@ -55,18 +55,6 @@ const HomeFarmer = ({ navigation }) => {
         setTemperature(temperatureValue);
         setLoading(false); // Stop loading when data is available
 
-        // Check if temperature is greater than 32°C and send a notification
-        // if (temperatureValue && temperatureValue.temperature > 32 && !notificationSent) {
-        //   // Adjust the notification message as needed
-        //   schedulePushNotification('High Temperature Alert', 'Temperature is above 32°C');
-        //   setNotificationSent(true); // Mark notification as sent
-        // } else if (temperatureValue && temperatureValue.temperature < 18  && !notificationSent) {
-        //   // Adjust the notification message as needed
-        //   schedulePushNotification('Low Temperature Alert', 'Temperature is below 18°C');
-        //   setNotificationSent(true); // Mark notification as sent
-        // } else if (temperatureValue && temperatureValue.temperature >= 18 && temperatureValue.temperature <= 32){
-        //   setNotificationSent(false);
-        // }
       } catch (error) {
         console.error('Error reading temperature:', error);
         setLoading(false); // Stop loading in case of an error
@@ -91,8 +79,6 @@ const HomeFarmer = ({ navigation }) => {
   };
 
   useEffect(() => {
-    // ... (your Firebase real-time listeners)
-
     // Update the current date and time every second
     const intervalId = setInterval(() => {
       setCurrentDate(new Date());
@@ -105,12 +91,20 @@ const HomeFarmer = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
         <View style={styles.headerContainer}>
-          <Text style={styles.headerTitle}>
-            Poultry Pro
-          </Text>
-          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <Text style={styles.logoutBtnText}>Logout</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Image
+              style={styles.icon}
+              source={require('../../../assets/adaptive-icon.png')}
+            />
+            <Text style={styles.headerTitle}>
+              Poultry Pro
+            </Text>
+          </View>
+          <View style={{ marginLeft: "auto" }}>
+            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+              <Text style={styles.logoutBtnText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.dateContainer}>
           <Text style={styles.dateText}>

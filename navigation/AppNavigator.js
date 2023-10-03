@@ -8,6 +8,8 @@ import { COLORS } from '../constants/theme';
 
 import LoginScreen from '../screens/Login/LoginScreen';
 import Onboarding from '../screens/Onboarding/Onboarding';
+import FarmerGuideScreen from '../screens/Guide/farmer/GuideFarmerScreen';
+import OwnerGuideScreen from '../screens/Guide/owner/GuideOwnerScreen';
 import MainScreen from '../screens/Tabs/MainScreen';
 import FarmerScreen from '../screens/Tabs2/FarmerScreen';
 import RegisterScreen from '../screens/Registration/RegisterScreen';
@@ -25,8 +27,13 @@ const AppNavigator = () => {
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen 
-                    name="Onboarding" 
-                    component={Onboarding} 
+                    name="FarmerGuide" 
+                    component={FarmerGuideScreen} 
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen 
+                    name="OwnerGuide"
+                    component={OwnerGuideScreen} 
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen 

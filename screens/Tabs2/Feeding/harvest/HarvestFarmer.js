@@ -74,7 +74,7 @@ const HarvestFarmer = () => {
     Toast.show({
       type: 'info',
       text1: "There's no ongoing cycle. Create a new batch!",
-      visibilityTime: 5000, // Adjust as needed
+      visibilityTime: 5000,
     });
   };
 
@@ -82,7 +82,7 @@ const HarvestFarmer = () => {
     Toast.show({
       type: 'error',
       text1: "Please fill in all fields.",
-      visibilityTime: 5000, // Adjust as needed
+      visibilityTime: 5000, 
     });
   };
 
@@ -90,7 +90,7 @@ const HarvestFarmer = () => {
     Toast.show({
       type: 'success',
       text1: "Harvest Data Saved!",
-      visibilityTime: 5000, // Adjust as needed
+      visibilityTime: 5000, 
     });
   };
 
@@ -98,7 +98,7 @@ const HarvestFarmer = () => {
     Toast.show({
       type: 'error',
       text1: "Total cannot exceed the total population available.",
-      visibilityTime: 5000, // Adjust as needed
+      visibilityTime: 5000, 
     });
   };
 
@@ -199,7 +199,6 @@ const HarvestFarmer = () => {
       
       // Check if the 'goodChicken' and 'rejectChicken' values are not empty
       if (!goodChicken || !rejectChicken) {
-        // Show an error message or perform any other desired action
         emptyInputToast();
         return; // Exit the function without saving data
       }
@@ -210,7 +209,6 @@ const HarvestFarmer = () => {
 
       // Check if the sum of good chicken and reject chicken is greater than the total chickens available
       if (goodChickenCount + rejectChickenCount > btData.no_of_chicken || goodChickenCount + rejectChickenCount < btData.no_of_chicken) {
-        // Show an error message or perform any other desired action
         matchingTotalToast();
         return; // Exit the function without saving data
       }
@@ -235,8 +233,6 @@ const HarvestFarmer = () => {
           querySnapshot.forEach(async (doc) => {
             // Update the 'batch' document with the new data
             await db.collection('batch').doc(doc.id).update({
-              // Update the fields you want to change in the 'batch' document
-              // For example, you can update 'isHarvested' to true
               isHarvested: true,
               cycle_expected_end_date: new Date(),
             });
@@ -249,10 +245,8 @@ const HarvestFarmer = () => {
       setSelectedDate(new Date());
       successInsertToast();
       await fetchBatchByBatchNo(btData.batch_no);
-      // You can also show a success message or perform any UI updates
     } catch (error) {
       console.error('Error saving harvest data:', error);
-      // Handle errors or show an error message to the user
     } finally {
       setIsSaving(false); // End loading state
       await fetchBatchByBatchNo(btData.batch_no);

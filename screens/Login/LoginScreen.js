@@ -18,13 +18,14 @@ const LoginScreen = () => {
       try {
         // Check if user type exists in AsyncStorage
         const userType = await AsyncStorage.getItem('userType');
+        const hasSeenGuide = await AsyncStorage.getItem('hasSeenGuide');
 
-        if (userType === 'owner') {
+        if (userType === 'owner' && hasSeenGuide == 'true') {
           navigation.reset({
             index: 0,
             routes: [{ name: 'MainScreen' }],
           });
-        } else if (userType === 'farmer') {
+        } else if (userType === 'farmer' && hasSeenGuide == 'true') {
           navigation.reset({
             index: 0,
             routes: [{ name: 'FarmerScreen' }],
@@ -47,17 +48,17 @@ const LoginScreen = () => {
 
       // Store user type in AsyncStorage
       await AsyncStorage.setItem('userType', userType);
-
+      
       // Navigate to the corresponding screen based on user type
       if (userType === 'owner') {
         navigation.reset({
             index: 0,
-            routes: [{ name: 'MainScreen' }],
+            routes: [{ name: 'OwnerGuide' }],
         });
       } else if (userType === 'farmer') {
         navigation.reset({
             index: 0,
-            routes: [{ name: 'FarmerScreen' }],
+            routes: [{ name: 'FarmerGuide' }],
         });
       } else {
         // Handle other user types or scenarios
@@ -67,22 +68,8 @@ const LoginScreen = () => {
     }
   };
 
-//   const handleTest = async () => {
-//     const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-//     console.log("User UID:", userCredential.user.uid);
-    
-//     const userDoc = await firebase.firestore().collection('users').doc(userCredential.user.uid).get();
-//     console.log("User Doc:", userDoc.data());
-    
-//     if (userDoc.exists) {
-//       const userType = userDoc.data().userType;
-//       console.log("User Type:", userType);
-//       // Rest of your code
-//     }
-//   };
-
   const handleRegister = () => {
-    navigation.navigate('RegisterScreen'); // Replace 'HomeScreen' with the actual screen name
+    navigation.navigate('RegisterScreen');
   };
   return (
     <SafeAreaView style={styles.container}>

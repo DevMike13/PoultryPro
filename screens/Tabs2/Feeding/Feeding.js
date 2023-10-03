@@ -54,19 +54,6 @@ const Feeding = () => {
           <Text style={styles.headerTitle}>Poultry Pro</Text>
           <Text style={{ fontFamily: FONT.medium, paddingRight: 20 }}>{currentDate}</Text>
         </View>
-        {/* <View>
-          <TouchableOpacity onPress={() => setShowPicker(true)}>
-            <Text>OPEN</Text>
-          </TouchableOpacity>
-          {showPicker && (
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display="calendar"
-              onChange={onChange}
-            />
-          )}
-        </View> */}
         <Tabs 
           tabs={tabList}
           activeTab={activeTab}

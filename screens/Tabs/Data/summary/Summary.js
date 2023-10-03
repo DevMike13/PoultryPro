@@ -26,16 +26,14 @@ const Summary = () => {
 
       querySnapshot.forEach((doc) => {
         const batchData = doc.data();
-        // Assuming 'batch_no' is the field name in your Firestore documents
         const batchNo = batchData.batch_no;
-        const formattedBatchNo = `Batch ${batchNo}`; // Add "Batch" to the value
+        const formattedBatchNo = `Batch ${batchNo}`; 
         batchNumbersArray.push(formattedBatchNo);
       });
 
-      // Set the state variable with the batch numbers array
       setBatchNumbers(batchNumbersArray);
     });
-  }, []); // Empty dependency array to ensure the effect runs only once
+  }, []);
 
   useEffect(() => {
     // Reference to the Firestore collection
@@ -50,26 +48,22 @@ const Summary = () => {
         const batchNo = harvestData.batch_no;
         const goodChicken = harvestData.good_chicken;
 
-        // If the batch already exists in the map, update the mortality count
         if (batchHarvestMap.has(batchNo)) {
           const existingCount = batchHarvestMap.get(batchNo);
           batchHarvestMap.set(batchNo, existingCount + goodChicken);
         } else {
-          // Otherwise, add the batch to the map with the initial mortality count
           batchHarvestMap.set(batchNo, goodChicken);
         }
       });
 
-      // Extract the summed mortality counts from the map and sort them by batch_no
       const summedGoodChicken = [...batchHarvestMap.values()].sort((a, b) =>
         batchHarvestMap.get(a) - batchHarvestMap.get(b)
       );
 
-      // Set the state variable with the summed mortality counts
       setBatchHarvestData(summedGoodChicken);
       setIsLoading(false);
     });
-  }, []); // Empty dependency array to ensure the effect runs only once
+  }, []);
 
   const harvData = {};
 
@@ -81,11 +75,10 @@ const Summary = () => {
       },
     ];
   } else {
-    // Add a default label and empty dataset if either or both arrays are empty
     harvData.labels = ['No Data'];
     harvData.datasets = [
       {
-        data: [0], // You can set this to any default value you prefer
+        data: [0], 
       },
     ];
   }
@@ -108,7 +101,7 @@ const Summary = () => {
         { batchHarvestData.length > 4 ? (
          
           <View style={styles.chartContainer}>
-            <Text style={styles.headerTitle}>Yearly Summary</Text>
+            <Text style={styles.headerTitle}>Batch Summary</Text>
             <ScrollView horizontal>
               <BarChart
                 onDataPointClick={handleDataPointClick}
@@ -158,7 +151,7 @@ const Summary = () => {
           </View>
         ) : (
           <View style={styles.chartContainer}>
-            <Text style={styles.headerTitle}>Yearly Summary</Text>
+            <Text style={styles.headerTitle}>Batch Summary</Text>
             <BarChart
               onDataPointClick={handleDataPointClick}
               data={harvData}

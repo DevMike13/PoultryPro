@@ -69,9 +69,7 @@ const Harvest = () => {
       batchInfo.cycle_started = batchInfo.cycle_started.toDate();
   
       setBatchInfo(batchInfo);
-      // console.log(batchInfo);
       setIsLoading(false);
-      // ... Your existing mortality data fetching logic ...
   
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -98,12 +96,10 @@ const Harvest = () => {
       setGoodChick(goodChicken);
       setRejectChick(rejectChicken);
   
-      // Now you have the values for good_chicken and reject_chicken
       console.log('Good Chicken:', goodChicken);
       console.log('Reject Chicken:', rejectChicken);
     } catch (error) {
       console.error('Error fetching harvest data:', error);
-      // Handle the error as needed
     }
   };
   

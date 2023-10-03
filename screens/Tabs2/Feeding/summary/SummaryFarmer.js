@@ -52,7 +52,7 @@ const SummaryFarmer = () => {
       {
         translateY: animation.interpolate({
           inputRange: [0, 1],
-          outputRange: [0, 0], // Adjust the values as needed
+          outputRange: [0, 0],
         }),
       },
     ],
@@ -215,138 +215,146 @@ const SummaryFarmer = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ConfirmationModal/>
-      <ScrollView showsVerticalScrollIndicator={true} contentContainerStyle={{ paddingVertical: 20, gap: 20 }}>
-        <View style={styles.firstContainer}>
-          {/* CYCLE */}
-          <View style={styles.cycleContainer}>
-            
-              {isLoading ? (
-                <ActivityIndicator size="large" color="blue" />
-              ) : (
-                <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{btData.batch_no}</Text>
-              )}
-          
-            <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
-              <Ionicons
-                  name="logo-buffer"
-                  size={18}
-              />
-              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
-                Batch No.
-              </Text>
-            </View>
-          </View>
-
-          {/* HUMIDITY AND TEMP */}
-          <View style={styles.tempHumidityContainer1}>
-            <View>
-              <Text style={{ fontFamily: FONT.bold}}>
-                Cycle Duration
-              </Text>
-            </View>
-            <View style={styles.tempHumidityContainer}>
-              <View style={styles.tempHumidityContent}>
-                {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>70%</Text> */}
-                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#FF5733" }}>Start</Text>
-                {isLoading || !startDate ? (
-                  <ActivityIndicator size="large" color="blue" />
-                ) : (
-                  <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatFirestoreTimestamp(btData.cycle_started)}</Text>
-                )}
-              </View>
-              <View style={styles.tempHumidityContent}>
-                {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>32 C°</Text> */}
-                <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#ff0000" }}>End</Text>
-                {isLoading ? (
-                  <ActivityIndicator size="large" color="blue" />
-                ) : (
-                  <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>
-                    {btData.cycle_expected_end_date
-                      ? formatFirestoreTimestamp(btData.cycle_expected_end_date)
-                      : 'N/A'} {/* Check if cycle_expected_end_date is defined */}
-                  </Text>
-                )}
+      {btData.length == 0 ? (
+        <ActivityIndicator size="large" color="blue" style={{ alignSelf: "center", marginVertical: 50}} />
+      ) : (
+        btData.isHarvested != true ? (
+          <ScrollView showsVerticalScrollIndicator={true} contentContainerStyle={{ paddingVertical: 20, gap: 20 }}>
+            <View style={styles.firstContainer}>
+              {/* CYCLE */}
+              <View style={styles.cycleContainer}>
                 
+                  {isLoading ? (
+                    <ActivityIndicator size="large" color="blue" />
+                  ) : (
+                    <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{btData.batch_no}</Text>
+                  )}
+              
+                <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
+                  <Ionicons
+                      name="logo-buffer"
+                      size={18}
+                  />
+                  <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
+                    Batch No.
+                  </Text>
+                </View>
+              </View>
+  
+              {/* HUMIDITY AND TEMP */}
+              <View style={styles.tempHumidityContainer1}>
+                <View>
+                  <Text style={{ fontFamily: FONT.bold}}>
+                    Cycle Duration
+                  </Text>
+                </View>
+                <View style={styles.tempHumidityContainer}>
+                  <View style={styles.tempHumidityContent}>
+                    {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>70%</Text> */}
+                    <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#FF5733" }}>Start</Text>
+                    {isLoading || !startDate ? (
+                      <ActivityIndicator size="large" color="blue" />
+                    ) : (
+                      <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>{formatFirestoreTimestamp(btData.cycle_started)}</Text>
+                    )}
+                  </View>
+                  <View style={styles.tempHumidityContent}>
+                    {/* <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>32 C°</Text> */}
+                    <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small, color: "#ff0000" }}>End</Text>
+                    {isLoading ? (
+                      <ActivityIndicator size="large" color="blue" />
+                    ) : (
+                      <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.small }}>
+                        {btData.cycle_expected_end_date
+                          ? formatFirestoreTimestamp(btData.cycle_expected_end_date)
+                          : 'N/A'} {/* Check if cycle_expected_end_date is defined */}
+                      </Text>
+                    )}
+                    
+                  </View>
+                </View>
               </View>
             </View>
-          </View>
-        </View>
-
-
-        <View style={styles.firstContainer}>
-          {/* CYCLE */}
-          <View style={styles.cycleContainer}>
-            
-              {isLoading ? (
-                <ActivityIndicator size="large" color="blue" />
-              ) : (
-                <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{daysBetweenRounded}</Text>
-              )}
-          
-            <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
-              <Ionicons
-                  name="sunny"
-                  size={18}
-              />
-              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
-                Day No.   
-              </Text>
-            </View>
-          </View>
-
-          {/* HUMIDITY AND TEMP */}
-          <View style={[styles.tempHumidityContainer1, {gap: 10}]}>
-            <View>
-              <Text style={{ fontFamily: FONT.bold}}>
-                Total Population
-              </Text>
-            </View>
-            <View style={styles.tempHumidityContainer}>
-              {isLoading || !btData.no_of_chicken ? (
-                <ActivityIndicator size="large" color="blue" />
-              ) : (
-                <Text style={styles.contentValueText}>
-                  {btData.no_of_chicken.toLocaleString()}
-                </Text>
-              )}
-            </View>
-          </View>
-        </View>
-        
-        <View style={styles.currentDaysContainer}>
-          <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.medium, marginBottom: 10 }}>Currrent Days</Text>
-          <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.medium }}>{currentDays}</Text>
-        </View>
-        
-
-        <TouchableOpacity style={styles.manualBtn} onPress={toggleManualVisibility}>
-          <Text style={styles.manualBtnText}>
-            Edit Current Days
-          </Text>
-          <Ionicons
-            name="create-outline"
-            size={20}
-            color={COLORS.lightWhite}
-          />
-        </TouchableOpacity>
-
-        { isFilterVisible && (
-            <Animated.View style={[styles.animatedContainer, filterStyle]}>
-              <RadioButton.Group onValueChange={handleRadioChange} value={daysValue}>
+  
+  
+            <View style={styles.firstContainer}>
+              {/* CYCLE */}
+              <View style={styles.cycleContainer}>
+                
+                  {isLoading ? (
+                    <ActivityIndicator size="large" color="blue" />
+                  ) : (
+                    <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.xxLarge}}>{daysBetweenRounded}</Text>
+                  )}
+              
+                <View style={{ flexDirection: "row", gap: 5, alignItems: "center", justifyContent: "center" }}>
+                  <Ionicons
+                      name="sunny"
+                      size={18}
+                  />
+                  <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.xSmall }}>
+                    Day No.   
+                  </Text>
+                </View>
+              </View>
+  
+              {/* HUMIDITY AND TEMP */}
+              <View style={[styles.tempHumidityContainer1, {gap: 10}]}>
                 <View>
-                  <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>Select days:</Text>
-                  <View style={{ width: 120, height: 2, backgroundColor: COLORS.primary, marginTop: 5 }}></View>
-                  <RadioButton.Item label="0-7 days" value="0-7 days" labelStyle={{ fontFamily: FONT.medium, fontSize: SIZES.medium }}/>
-                  <RadioButton.Item label="7-14 days" value="7-14 days" labelStyle={{ fontFamily: FONT.medium, fontSize: SIZES.medium }}/>
-                  <RadioButton.Item label="14-28 days" value="14-28 days" labelStyle={{ fontFamily: FONT.medium, fontSize: SIZES.medium }}/>
-                </View> 
-              </RadioButton.Group>
-              <TouchableOpacity style={{ backgroundColor: COLORS.tertiary, paddingHorizontal: 20, width: 100, alignSelf: "center", alignItems: "center", justifyContent: "center", paddingVertical: 5, borderRadius: SIZES.small }} onPress={handleConfirmModal}>
-                <Text style={{ fontFamily: FONT.medium, color: COLORS.lightWhite }}>Save</Text>
-              </TouchableOpacity>
-            </Animated.View>
-          )}
-      </ScrollView>
+                  <Text style={{ fontFamily: FONT.bold}}>
+                    Total Population
+                  </Text>
+                </View>
+                <View style={styles.tempHumidityContainer}>
+                  {isLoading || !btData.no_of_chicken ? (
+                    <ActivityIndicator size="large" color="blue" />
+                  ) : (
+                    <Text style={styles.contentValueText}>
+                      {btData.no_of_chicken.toLocaleString()}
+                    </Text>
+                  )}
+                </View>
+              </View>
+            </View>
+            
+            <View style={styles.currentDaysContainer}>
+              <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.medium, marginBottom: 10 }}>Currrent Days</Text>
+              <Text style={{ fontFamily: FONT.regular, fontSize: SIZES.medium }}>{currentDays}</Text>
+            </View>
+            
+  
+            <TouchableOpacity style={styles.manualBtn} onPress={toggleManualVisibility}>
+              <Text style={styles.manualBtnText}>
+                Edit Current Days
+              </Text>
+              <Ionicons
+                name="create-outline"
+                size={20}
+                color={COLORS.lightWhite}
+              />
+            </TouchableOpacity>
+  
+            { isFilterVisible && (
+                <Animated.View style={[styles.animatedContainer, filterStyle]}>
+                  <RadioButton.Group onValueChange={handleRadioChange} value={daysValue}>
+                    <View>
+                      <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>Select days:</Text>
+                      <View style={{ width: 120, height: 2, backgroundColor: COLORS.primary, marginTop: 5 }}></View>
+                      <RadioButton.Item label="0-7 days" value="0-7 days" labelStyle={{ fontFamily: FONT.medium, fontSize: SIZES.medium }}/>
+                      <RadioButton.Item label="7-14 days" value="7-14 days" labelStyle={{ fontFamily: FONT.medium, fontSize: SIZES.medium }}/>
+                      <RadioButton.Item label="14-28 days" value="14-28 days" labelStyle={{ fontFamily: FONT.medium, fontSize: SIZES.medium }}/>
+                    </View> 
+                  </RadioButton.Group>
+                  <TouchableOpacity style={{ backgroundColor: COLORS.tertiary, paddingHorizontal: 20, width: 100, alignSelf: "center", alignItems: "center", justifyContent: "center", paddingVertical: 5, borderRadius: SIZES.small }} onPress={handleConfirmModal}>
+                    <Text style={{ fontFamily: FONT.medium, color: COLORS.lightWhite }}>Save</Text>
+                  </TouchableOpacity>
+                </Animated.View>
+              )}
+          </ScrollView>
+        ) : (
+          <Text style={{ fontFamily: FONT.medium, alignSelf: "center", marginVertical: 50 }}>There's no ongoing batch.</Text>
+        )
+      )}
     </SafeAreaView>
   )
 }

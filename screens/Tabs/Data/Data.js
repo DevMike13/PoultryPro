@@ -51,19 +51,6 @@ const Data = () => {
         <View style={styles.titleContainer}>
           <Text style={styles.headerTitle}>Poultry Pro</Text>
         </View>
-        {/* <View>
-          <TouchableOpacity onPress={() => setShowPicker(true)}>
-            <Text>OPEN</Text>
-          </TouchableOpacity>
-          {showPicker && (
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display="calendar"
-              onChange={onChange}
-            />
-          )}
-        </View> */}
         <Tabs 
           tabs={tabList}
           activeTab={activeTab}

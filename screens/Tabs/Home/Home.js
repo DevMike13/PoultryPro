@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { SafeAreaView, Text, View, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { format } from 'date-fns';
 import { useNavigation } from '@react-navigation/native';
@@ -20,6 +20,8 @@ const Home = ({ navigation }) => {
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('userType');
+      await AsyncStorage.removeItem('hasSeenGuide');
+      
       navigation.reset({
         index: 0,
         routes: [{ name: 'Login' }],
@@ -79,8 +81,6 @@ const Home = ({ navigation }) => {
   };
 
   useEffect(() => {
-    // ... (your Firebase real-time listeners)
-
     // Update the current date and time every second
     const intervalId = setInterval(() => {
       setCurrentDate(new Date());
@@ -93,12 +93,20 @@ const Home = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
         <View style={styles.headerContainer}>
-          <Text style={styles.headerTitle}>
-            Poultry Pro
-          </Text>
-          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-            <Text style={styles.logoutBtnText}>Logout</Text>
-          </TouchableOpacity>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Image
+              style={styles.icon}
+              source={require('../../../assets/adaptive-icon.png')}
+            />
+            <Text style={styles.headerTitle}>
+              Poultry Pro
+            </Text>
+          </View>
+          <View style={{ marginLeft: "auto" }}>
+            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+              <Text style={styles.logoutBtnText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.dateContainer}>
           <Text style={styles.dateText}>

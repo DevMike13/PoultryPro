@@ -78,7 +78,7 @@ const DeathFarmer = () => {
     Toast.show({
       type: 'success',
       text1: 'Mortality Added',
-      visibilityTime: 5000, // Adjust as needed
+      visibilityTime: 5000,
     });
   };
 
@@ -86,7 +86,7 @@ const DeathFarmer = () => {
     Toast.show({
       type: 'info',
       text1: "There's no ongoing cycle. Create a new batch!",
-      visibilityTime: 5000, // Adjust as needed
+      visibilityTime: 5000,
     });
   };
 

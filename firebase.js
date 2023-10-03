@@ -2,10 +2,10 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import 'firebase/compat/database';
-import 'firebase/compat/messaging'; // Import the Cloud Messaging module
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAhGk_lEII5H23G61r_Gw72yY0l4h9HAB4",
+    apiKey: "AIzaSyCR4E5CcFMvNmyRyVwsIqY3UADbakj47w4",
+    databaseURL: "https://poultrypro-2408c-default-rtdb.firebaseio.com",
     authDomain: "poultrypro-2408c.firebaseapp.com",
     projectId: "poultrypro-2408c",
     storageBucket: "poultrypro-2408c.appspot.com",

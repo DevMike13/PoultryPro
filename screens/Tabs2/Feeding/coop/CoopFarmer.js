@@ -11,46 +11,6 @@ import firebase from '../../../../firebase';
 import styles from './coop.style';
 
 const CoopFarmer = () => {
-  // const [selectedDate, setSelectedDate] = useState(new Date());
-  // const [selectedTime, setSelectedTime] = useState(new Date());
-
-  // const [showDatePicker, setShowDatePicker] = useState(false);
-  // const [showTimePicker, setShowTimePicker] = useState(false);
-
-  // const handleDateChange = (event, selected) => {
-  //   if (selected) {
-  //     setSelectedDate(selected);
-  //   }
-  //   setShowDatePicker(Platform.OS === 'ios');
-  // };
-
-  // const handleTimeChange = (event, selected) => {
-  //   if (selected) {
-  //     setSelectedTime(selected);
-  //   }
-  //   setShowTimePicker(Platform.OS === 'ios');
-  // };
-
-  // const toggleDatePicker = () => {
-  //   setShowDatePicker(!showDatePicker);
-  // };
-
-  // const toggleTimePicker = () => {
-  //   setShowTimePicker(!showTimePicker);
-  // };
-
-  // const formatDate = date => {
-  //   return `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`;
-  // };
-
-  // const formatTime = time => {
-  //   const hours = time.getHours();
-  //   const minutes = time.getMinutes();
-  //   const amPM = hours >= 12 ? 'PM' : 'AM';
-  //   const formattedHours = hours % 12 || 12;
-  //   const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-  //   return `${formattedHours}:${formattedMinutes} ${amPM}`;
-  // };
 
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [animation] = useState(new Animated.Value(0));
@@ -153,7 +113,7 @@ const CoopFarmer = () => {
       {
         translateY: animation.interpolate({
           inputRange: [0, 1],
-          outputRange: [0, 0], // Adjust the values as needed
+          outputRange: [0, 0],
         }),
       },
     ],
@@ -176,7 +136,7 @@ const CoopFarmer = () => {
     const newBatchDocRef = db.collection('batch').doc(batchNumber.toString());
   
     const currentDate = new Date();
-    const futureDate = addDays(currentDate, 45);
+    const futureDate = addDays(currentDate, 28);
   
     const batchData = {
       batch_no: batchNumber,
@@ -250,17 +210,16 @@ const CoopFarmer = () => {
   const checkDateDifference = (compareFrom, compareTo)=> {
     
     if (!compareFrom || !compareTo) {
-      return false; // If either date is null or undefined, they can't be equal
+      return false; 
     }
     return compareFrom.getTime() === compareTo.getTime();
   }
 
   useEffect(() => {
     fetchBatchByBatchNo(batchNo); // Fetch batch data based on the updated batchNo
-  }, [batchNo]); // Trigger when batchNo changes
+  }, [batchNo]);
 
   useEffect(() => {
-    // Fetch the batch counter value and update batchNo state
     fetchBatchCounter();
   }, []);
 
@@ -287,7 +246,7 @@ const CoopFarmer = () => {
     Toast.show({
       type: 'error',
       text1: 'Your last cycle is not finished!',
-      visibilityTime: 3000, // Adjust as needed
+      visibilityTime: 3000,
     });
   };
 
@@ -296,7 +255,7 @@ const CoopFarmer = () => {
     Toast.show({
       type: 'success',
       text1: 'Batch created successfully!',
-      visibilityTime: 3000, // Adjust as needed
+      visibilityTime: 3000,
     });
   };
 

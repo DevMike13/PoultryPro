@@ -25,16 +25,15 @@ const Death = () => {
 
       querySnapshot.forEach((doc) => {
         const batchData = doc.data();
-        // Assuming 'batch_no' is the field name in your Firestore documents
         const batchNo = batchData.batch_no;
-        const formattedBatchNo = `Batch ${batchNo}`; // Add "Batch" to the value
+        const formattedBatchNo = `Batch ${batchNo}`;
         batchNumbersArray.push(formattedBatchNo);
       });
 
       // Set the state variable with the batch numbers array
       setBatchNumbers(batchNumbersArray);
     });
-  }, []); // Empty dependency array to ensure the effect runs only once
+  }, []);
 
   
   useEffect(() => {
@@ -50,12 +49,10 @@ const Death = () => {
         const batchNo = mortalityData.batch_no;
         const mortalityCount = mortalityData.mortality_count;
 
-        // If the batch already exists in the map, update the mortality count
         if (batchMortalityMap.has(batchNo)) {
           const existingCount = batchMortalityMap.get(batchNo);
           batchMortalityMap.set(batchNo, existingCount + mortalityCount);
         } else {
-          // Otherwise, add the batch to the map with the initial mortality count
           batchMortalityMap.set(batchNo, mortalityCount);
         }
       });
@@ -69,7 +66,7 @@ const Death = () => {
       setBatchMortalityData(summedMortalityCounts);
       setIsLoading(false);
     });
-  }, []); // Empty dependency array to ensure the effect runs only once
+  }, []);
 
   
   const mortData = {};
@@ -86,7 +83,7 @@ const Death = () => {
     mortData.labels = ['No Data'];
     mortData.datasets = [
       {
-        data: [0], // You can set this to any default value you prefer
+        data: [0],
       },
     ];
   }

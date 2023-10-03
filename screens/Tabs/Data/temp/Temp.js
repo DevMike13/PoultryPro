@@ -84,7 +84,7 @@ const Temp = () => {
         // Format the dates as "MMM d" (e.g., "Aug 10")
         const formattedDateArray = dataArray.map((item) => {
           const [year, month, day] = item.date.split('-');
-          const dateObj = new Date(year, month - 1, day); // Subtract 1 from month to match JavaScript's 0-based month index
+          const dateObj = new Date(year, month - 1, day);
           return dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
         });
         const maxTempArray = dataArray.map((item) => item.maxTemperature);
@@ -118,13 +118,11 @@ const Temp = () => {
 
           // Check if temperature data is available and not NaN
           if (!isNaN(docData.humidity)) {
-            // If the date exists in the map, update the highest temperature
             if (dataMap.has(date)) {
               const currentMaxHum = dataMap.get(date);
               const newMaxHum = Math.max(currentMaxHum, docData.humidity);
               dataMap.set(date, newMaxHum);
             } else {
-              // If the date doesn't exist, create a new entry
               dataMap.set(date, docData.humidity);
             }
           }
@@ -142,7 +140,7 @@ const Temp = () => {
         // Format the dates as "MMM d" (e.g., "Aug 10")
         const formattedDateArray = dataArray.map((item) => {
           const [year, month, day] = item.date.split('-');
-          const dateObj = new Date(year, month - 1, day); // Subtract 1 from month to match JavaScript's 0-based month index
+          const dateObj = new Date(year, month - 1, day);
           return dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
         });
         const maxHumArray = dataArray.map((item) => item.maxHumidity);

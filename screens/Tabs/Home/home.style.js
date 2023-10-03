@@ -8,18 +8,21 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.lightWhite,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 50,
+    paddingHorizontal: 30,
     gap: 30
   },
+  icon:{
+    width: 80,
+    height: 80
+  },
   headerContainer:{
-    // width: "100%",
+    width: "100%",
     alignItems: "center",
     flexDirection: "row",
-    gap: 20
   },
   headerTitle:{
     fontFamily: FONT.bold,
-    fontSize: SIZES.xxxLarge,
+    fontSize: SIZES.xLarge,
   },
   logoutBtn:{
     backgroundColor: COLORS.tertiary,

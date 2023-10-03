@@ -75,28 +75,6 @@ const Coop = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  // useEffect(() => {
-  //   const newValue = isFilterVisible ? 1 : 0;
-    
-  //   Animated.timing(animation, {
-  //     toValue: newValue,
-  //     duration: 300,
-  //     useNativeDriver: true,
-  //   }).start();
-  // }, [isFilterVisible]);
-  
-  // const filterStyle = {
-  //   opacity: animation,
-  //   transform: [
-  //     {
-  //       translateY: animation.interpolate({
-  //         inputRange: [0, 1],
-  //         outputRange: [0, 0], // Adjust the values as needed
-  //       }),
-  //     },
-  //   ],
-  // };
-
   const getBatchList = () => {
     // Reference to the Firestore collection
     const collectionRef = firebase.firestore().collection('batch');
@@ -139,16 +117,15 @@ const Coop = () => {
       const db = firebase.firestore();
       
       // Fetch current population (no_of_chickens)
-      const batchRef = db.collection('batch'); // Replace with your collection name
+      const batchRef = db.collection('batch');
       const query = batchRef.where('batch_no', '==', selectedBatchNo);
       const querySnapshot = await query.get();
       
       const chickensData = [];
   
-      // Loop through the documents (there should be only one document matching the batch_no)
+      // Loop through the documents
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        // Assuming 'no_of_chickens' is a numeric field in Firestore
         const noOfChickens = data.no_of_chicken;
         chickensData.push(noOfChickens);
       });
@@ -156,8 +133,8 @@ const Coop = () => {
       // Get the first (and only) element of the array
       const currentPopulation = chickensData[0];
 
-      // Now, fetch the sum of mortality_count
-      const mortalityRef = db.collection('mortality'); // Replace with your "mortality" collection name
+      // fetch the sum of mortality_count
+      const mortalityRef = db.collection('mortality');
       const mortalityQuery = mortalityRef.where('batch_no', '==', selectedBatchNo);
       const mortalityQuerySnapshot = await mortalityQuery.get();
   
@@ -175,11 +152,9 @@ const Coop = () => {
       setCurrentPopulation(currentPopulation); 
       setTotalMortalityCount(mortality);
       setIsLoading(false);
-      // Now, you can safely log the values
       
     } catch (error) {
       console.error('Error fetching mortality data:', error);
-      // Handle the error as needed
     }
   };
   
@@ -250,9 +225,7 @@ const Coop = () => {
       batchInfo.cycle_started = batchInfo.cycle_started.toDate();
   
       setBatchInfo(batchInfo);
-      // console.log(batchInfo);
       setIsLoading(false);
-      // ... Your existing mortality data fetching logic ...
   
     } catch (error) {
       console.error('Error fetching data:', error);

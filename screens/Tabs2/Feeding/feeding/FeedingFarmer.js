@@ -189,8 +189,8 @@ const FeedingFarmer = () => {
 
   const formatDate = (date) => {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Ensure two digits for month
-    const day = String(date.getDate()).padStart(2, '0'); // Ensure two digits for day
+    const month = String(date.getMonth() + 1).padStart(2, '0'); 
+    const day = String(date.getDate()).padStart(2, '0'); 
     return `${month}/${day}/${year}`;
   };
 
@@ -264,7 +264,7 @@ const FeedingFarmer = () => {
       {
         translateY: animation.interpolate({
           inputRange: [0, 1],
-          outputRange: [0, 0], // Adjust the values as needed
+          outputRange: [0, 0],
         }),
       },
     ],
@@ -277,7 +277,7 @@ const FeedingFarmer = () => {
     setWateringState(newWateringState);
   };
 
-   // Function to toggle Watering state in Firebase
+   // Function to toggle Feeding state in Firebase
    const toggleFeeding = () => {
     const newFeedingState = feedingState === "ON" ? "OFF" : "ON";
     firebase.database().ref('feedingState').set(newFeedingState);
@@ -293,7 +293,7 @@ const FeedingFarmer = () => {
     });
   }, []);
 
-  // Listen for changes to the Watering state in Firebase
+  // Listen for changes to the Feeding state in Firebase
   useEffect(() => {
     const feedingStateRef = firebase.database().ref('feedingState');
     feedingStateRef.on('value', (snapshot) => {
@@ -311,23 +311,6 @@ const FeedingFarmer = () => {
       try {
         const stateDurationVal = snapshot.val();
         setStateDuration(stateDurationVal);
-
-        // Check if temperature is greater than 32°C and send a notification
-        // if (stateDurationVal && stateDurationVal == "0-7 days" && !notificationSent) {
-        //   // Adjust the notification message as needed
-        //   schedulePushNotification('Feeding & Watering', '0-7 days started');
-        //   setNotificationSent(true); // Mark notification as sent
-        // } else if (stateDurationVal && stateDurationVal == "7-14 days" && !notificationSent) {
-        //   // Adjust the notification message as needed
-        //   schedulePushNotification('Feeding & Watering', '7-14 days started');
-        //   setNotificationSent(true); // Mark notification as sent
-        // } else if (stateDurationVal && stateDurationVal == "14-28 days" && !notificationSent){
-        //    // Adjust the notification message as needed
-        //    schedulePushNotification('Feeding & Watering', '14-28 days started');
-        //    setNotificationSent(true); // Mark notification as sent
-        // } else {
-        //   setNotificationSent(false); // Mark notification as sent
-        // }
       } catch (error) {
         console.error('Error reading temperature:', error);
         setLoading(false); // Stop loading in case of an error
