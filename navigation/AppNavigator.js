@@ -13,6 +13,9 @@ import OwnerGuideScreen from '../screens/Guide/owner/GuideOwnerScreen';
 import MainScreen from '../screens/Tabs/MainScreen';
 import FarmerScreen from '../screens/Tabs2/FarmerScreen';
 import RegisterScreen from '../screens/Registration/RegisterScreen';
+import ResetPasswordScreen from '../screens/Reset/ResetPasswordScreen';
+import TermsAndConditionScreen from '../screens/TermsAndCondition/TermsAndConditionScreen';
+import TermsAndConditionReadOnly from '../screens/TermsAndCondition/ReadOnly/TermsAndCondition';
 
 const Stack = createStackNavigator();
 
@@ -49,6 +52,21 @@ const AppNavigator = () => {
                 <Stack.Screen 
                     name="RegisterScreen" 
                     component={RegisterScreen} 
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen 
+                    name="ResetPasswordScreen" 
+                    component={ResetPasswordScreen} 
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen 
+                    name="TermsAndConditionScreen" 
+                    component={TermsAndConditionScreen} 
+                    options={{ headerShown: false }}
+                />
+                <Stack.Screen 
+                    name="TermsAndConditionReadOnly" 
+                    component={TermsAndConditionReadOnly} 
                     options={{ headerShown: false }}
                 />
             </Stack.Navigator>

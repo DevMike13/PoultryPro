@@ -21,6 +21,7 @@ const Home = ({ navigation }) => {
     try {
       await AsyncStorage.removeItem('userType');
       await AsyncStorage.removeItem('hasSeenGuide');
+      await AsyncStorage.removeItem('acceptedTerms');
       
       navigation.reset({
         index: 0,
@@ -99,7 +100,7 @@ const Home = ({ navigation }) => {
               source={require('../../../assets/adaptive-icon.png')}
             />
             <Text style={styles.headerTitle}>
-              Poultry Pro
+              PoultryPro
             </Text>
           </View>
           <View style={{ marginLeft: "auto" }}>

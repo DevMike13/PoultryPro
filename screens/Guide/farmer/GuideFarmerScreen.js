@@ -63,7 +63,7 @@ const GuideFarmerScreen = () => {
           </View>
         </View>
         <Text style={styles.description}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+        The Home Button in our poultry farm mobile application serves as the central hub for users to access essential real-time information about their poultry house. When you tap on the Home Button, it provides you with an instant snapshot of the current environmental conditions inside your poultry house. This includes the temperature and humidity levels, vital factors for ensuring the well-being and productivity of your poultry.
         </Text>
         <View style={[styles.guideContainer, {marginTop : 20}]}>
           <View style={styles.guideTiles}>
@@ -85,12 +85,24 @@ const GuideFarmerScreen = () => {
           </View>
         </View>
         <Text style={styles.description}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          The Feeding and Data Within this feature, farmers can tailor the feeding regimen for their chickens, ensuring optimal growth and others.
         </Text>
 
         <View style={styles.footerContainer}>
           <Text style={styles.description}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+            <Text style={{ fontFamily: FONT.bold }}>Set Feeding Parameters:</Text> Adjust the specific amounts of water and feed to provide to your chickens by selecting diffirent set.
+          </Text>
+          <Text style={styles.description}>
+            <Text style={{ fontFamily: FONT.bold }}>Create New Batch:</Text> Start a new batch of chickens with ease. This function allows farmers to initiate a fresh group of birds, enabling efficient management of different poultry cycles.
+          </Text>
+          <Text style={styles.description}>
+            <Text style={{ fontFamily: FONT.bold }}>Death Input:</Text> Log the number of chicken deaths for each day. Accurate record-keeping is essential for health monitoring and swift response to any issues that may arise.
+          </Text>
+          <Text style={styles.description}>
+            <Text style={{ fontFamily: FONT.bold }}>Harvest Input:</Text> Input the quantity of both good and bad chickens harvested. This data helps you assess the success of each batch and identify areas for improvement.
+          </Text>
+          <Text style={styles.description}>
+            <Text style={{ fontFamily: FONT.bold }}>Harvest Summary:</Text> Access a comprehensive summary of the harvested chickens for each batch. This summary provides a clear overview of the batch's performance, including the quantity of chickens harvested and their quality.
           </Text>
           <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
             <Text style={styles.buttonText}>Continue</Text>

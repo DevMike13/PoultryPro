@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, Text, View, ActivityIndicator } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
+import { DataTable } from 'react-native-paper';
 
 import firebase from '../../../../firebase';
 
@@ -157,6 +158,21 @@ const Death = () => {
               )}
             </View>
           )}   
+        </View>
+        <View style={{ width: "90%"}}>
+          <DataTable>
+            <DataTable.Header>
+              <DataTable.Title style={{ justifyContent: 'center' }}>Batch Number</DataTable.Title>
+              <DataTable.Title style={{ justifyContent: 'center' }}>Batch Mortality</DataTable.Title>
+            </DataTable.Header>
+
+            {batchNumbers.map((batchNumber, index) => (
+              <DataTable.Row key={index}>
+                <DataTable.Cell style={{ justifyContent: 'center' }}>{batchNumber}</DataTable.Cell>
+                <DataTable.Cell style={{ justifyContent: 'center' }}>{batchMortalityData[index]}</DataTable.Cell>
+              </DataTable.Row>
+            ))}
+          </DataTable>
         </View>
     </SafeAreaView>
   )

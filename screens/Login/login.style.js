@@ -12,6 +12,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.lightWhite
   },
   headerContainer:{
+    alignItems: "center",
     height: "20%",
     paddingHorizontal: 25,
     paddingVertical: 25
@@ -90,6 +91,60 @@ const styles = StyleSheet.create({
     fontFamily: FONT.regular,
     fontSize: SIZES.medium,
   },
+
+  // FORGOT
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+  },
+  modalTitle: {
+    fontFamily: FONT.bold,
+    fontSize: 20,
+    marginBottom: 10,
+  },
+  subTitle: {
+    fontFamily: FONT.regular,
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginVertical: 30,
+  },
+  modalButton: {
+    backgroundColor: '#277df8',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  modalCloseButton: {
+    backgroundColor: 'gray',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  modalCloseButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+
+  // REG
   regContainer: {
     justifyContent: "center",
     alignItems: "center",

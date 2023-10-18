@@ -47,7 +47,8 @@ const styles = StyleSheet.create({
   },
   timeText:{
     fontFamily: FONT.regular,
-    fontSize: SIZES.medium
+    fontSize: SIZES.medium,
+    alignSelf: "center"
   },
 
 //   CARD

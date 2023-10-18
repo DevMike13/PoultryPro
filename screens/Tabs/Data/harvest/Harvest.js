@@ -215,13 +215,25 @@ const Harvest = () => {
         <PieChart
           data={data}
           width={400}
-          height={220}
+          height={320}
           chartConfig={chartConfig}
           accessor="population"
           backgroundColor="transparent"
           paddingLeft="15"
-          // absolute // Optional, use absolute values for the data
+          hasLegend={false}
+          center={[80, 0]}
+          absolute // Optional, use absolute values for the data
         />
+        <View style={{flexDirection: "row", gap: 50}}>
+          <View style={{ flexDirection: "row", gap: 10, justifyContent: "center", alignItems: "center"}}>
+              <View style={{ width: 20, height: 20, backgroundColor: "#1ABC9C", borderRadius: 10}}></View>
+              <Text style={{ fontFamily: FONT.regular }}>{goodChick.toLocaleString()} <Text style={{ fontFamily: FONT.bold }}>Good</Text></Text>
+          </View>
+          <View style={{ flexDirection: "row", gap: 10, justifyContent: "center", alignItems: "center"}}>
+              <View style={{ width: 20, height: 20, backgroundColor: "#E74C3C", borderRadius: 10}}></View>
+              <Text style={{ fontFamily: FONT.regular }}>{rejectChick.toLocaleString()} <Text style={{ fontFamily: FONT.bold }}>Reject</Text></Text>
+          </View>
+        </View>
       </View>
     </SafeAreaView>
   )
