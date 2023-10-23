@@ -30,6 +30,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     marginTop: SIZES.large,
+    width: "100%",
+    height: 50,
+  },
+  inputContainer2: {
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    width: "100%",
     height: 50,
   },
   inputWrapper: {

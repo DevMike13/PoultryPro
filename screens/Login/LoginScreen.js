@@ -168,7 +168,7 @@ const LoginScreen = () => {
                 </View>
             </View>
             <View style={{ width: "70%" }}>
-              <Text style={{ textAlign: "center", alignItems: "center" }}>
+              <Text style={{ textAlign: "center", alignItems: "center", fontFamily: FONT.regular }}>
                   By opening the app you agree to PoultryPro's{' '}
                   <Text style={{ textDecorationLine: 'underline', color: "#277df8", fontFamily: FONT.regular }} onPress={handleTermsAndCondition}>Terms of Use</Text>{' '}
                   and Privacy Policy
