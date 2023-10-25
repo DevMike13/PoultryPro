@@ -12,8 +12,8 @@ const styles = StyleSheet.create({
     gap: 30
   },
   icon:{
-    width: 80,
-    height: 80
+    width: 70,
+    height: 70
   },
   headerContainer:{
     width: "100%",

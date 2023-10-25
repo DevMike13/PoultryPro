@@ -12,6 +12,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.lightWhite
   },
   headerContainer:{
+    alignItems: "center",
     paddingHorizontal: 25,
     paddingVertical: 25,
   },

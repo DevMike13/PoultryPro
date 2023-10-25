@@ -49,7 +49,13 @@ const Data = () => {
     <SafeAreaView style={{backgroundColor: COLORS.lightWhite, flex: 1}}>
       <View style={styles.chatsHeader}>
         <View style={styles.titleContainer}>
-          <Text style={styles.headerTitle}>Poultry Pro</Text>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Image
+              style={{ width: 40, height: 40}}
+              source={require('../../../assets/fortopicon.png')}
+            />
+             <Text style={styles.headerTitle}>PoultryPro</Text>
+          </View>
         </View>
         <Tabs 
           tabs={tabList}

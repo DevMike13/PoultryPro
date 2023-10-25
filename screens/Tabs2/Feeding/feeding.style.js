@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
     },
     headerTitle:{
         fontFamily: FONT.bold,
-        fontSize: SIZES.xLarge,
+        fontSize: SIZES.large,
     },
 });
 

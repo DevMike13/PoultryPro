@@ -108,8 +108,8 @@ const LoginScreen = () => {
         <View style={styles.headerContainer}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Image
-              style={{ width: 80, height: 80}}
-              source={require('../../assets/adaptive-icon.png')}
+              style={{ width: 70, height: 70}}
+              source={require('../../assets/fortopicon.png')}
             />
              <Text style={styles.appTitle}>PoultryPro</Text>
           </View>

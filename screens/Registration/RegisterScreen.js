@@ -116,7 +116,13 @@ const RegisterScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
         <View style={styles.headerContainer}>
-            <Text style={styles.appTitle}>PoultryPro</Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Image
+                style={{ width: 70, height: 70}}
+                source={require('../../assets/fortopicon.png')}
+                />
+                <Text style={styles.appTitle}>PoultryPro</Text>
+            </View>
             <Text style={styles.appSubTitle}>We are the best poultry in town</Text>
         </View>
         <View style={{ width: "90%", marginVertical: 20, paddingLeft: 10, justifyContent: "center", alignItems: "center" }}>

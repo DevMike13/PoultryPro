@@ -95,7 +95,7 @@ const HomeFarmer = ({ navigation }) => {
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Image
               style={styles.icon}
-              source={require('../../../assets/adaptive-icon.png')}
+              source={require('../../../assets/fortopicon.png')}
             />
             <Text style={styles.headerTitle}>
               PoultryPro
