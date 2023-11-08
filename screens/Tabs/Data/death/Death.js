@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView, Text, View, ActivityIndicator } from 'react-native';
+import { SafeAreaView, Text, View, ActivityIndicator, ScrollView } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import { DataTable } from 'react-native-paper';
 
@@ -103,6 +103,7 @@ const Death = () => {
   };
 
   return (
+    <ScrollView showsVerticalScrollIndicator={true} contentContainerStyle={styles.scrollView}>
     <SafeAreaView style={styles.container}>
         <View style={styles.chartContainer}>
           <Text style={styles.headerTitle}>Mortality Rate</Text>
@@ -175,6 +176,7 @@ const Death = () => {
           </DataTable>
         </View>
     </SafeAreaView>
+    </ScrollView>
   )
 }
 

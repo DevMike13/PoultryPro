@@ -7,7 +7,7 @@ const styles = StyleSheet.create({
         width: "100%",
         justifyContent: "center",
         alignItems: "center",
-        paddingTop: 30,
+        paddingTop: 20,
         paddingBottom: 15
     },
     headerTitle:{
