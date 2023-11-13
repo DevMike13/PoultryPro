@@ -527,6 +527,7 @@ const FeedingFarmer = () => {
                 value={selectedDate}
                 mode="date"
                 display="default"
+                minimumDate={(new Date().getTime() + 24 * 60 * 60 * 1000)}
                 onChange={handleDateChange}
               />
             )}

@@ -81,6 +81,16 @@ const Home = ({ navigation }) => {
     }
   };
 
+  const getMeasurementTextColorHumid = () => {
+    if (humidity && humidity.humidity > 90) {
+      return 'red'; // Very high temperature, set color to red
+    } else if (humidity && humidity.humidity < 28) {
+      return 'lightblue'; // Very low temperature, set color to light blue
+    } else {
+      return '#90EE90'; // Normal temperature, set color to green
+    }
+  };
+
   useEffect(() => {
     // Update the current date and time every second
     const intervalId = setInterval(() => {
@@ -141,8 +151,14 @@ const Home = ({ navigation }) => {
             )}
            
             {/* Measurement */}
-            <Text style={styles.cardMeasurementText}>
-              Normal
+            <Text style={[styles.cardMeasurementText, {color: getMeasurementTextColorHumid()}]}>
+              {
+                humidity && humidity.humidity > 90
+                ? 'Very high'
+                : humidity && humidity.humidity < 28
+                ? 'Very low'
+                : 'Normal'
+              }
             </Text>
           </View>
         </View>

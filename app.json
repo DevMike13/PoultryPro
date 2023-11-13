@@ -6,17 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "assets": [
-      "assets/sound/alarm.wav"
-    ],
-    "plugins": [
-      [
-        "expo-notifications",
-        {
-          "sounds": ["./assets/sound/alarm.wav"]
-        }
-      ]
-    ],
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
