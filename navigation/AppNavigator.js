@@ -49,11 +49,11 @@ const AppNavigator = () => {
                     component={FarmerScreen} 
                     options={{ headerShown: false }}
                 />
-                <Stack.Screen 
+                {/* <Stack.Screen 
                     name="RegisterScreen" 
                     component={RegisterScreen} 
                     options={{ headerShown: false }}
-                />
+                /> */}
                 <Stack.Screen 
                     name="ResetPasswordScreen" 
                     component={ResetPasswordScreen} 

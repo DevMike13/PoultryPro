@@ -97,7 +97,7 @@ const HarvestFarmer = () => {
   const matchingTotalToast = () => {
     Toast.show({
       type: 'error',
-      text1: "Total cannot exceed the total population available.",
+      text1: "Total cannot exceed or subceed the total population available.",
       visibilityTime: 5000, 
     });
   };

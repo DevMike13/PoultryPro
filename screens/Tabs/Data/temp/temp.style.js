@@ -29,7 +29,19 @@ const styles = StyleSheet.create({
         color: COLORS.lightWhite,
         marginVertical: 10,
         ...SHADOWS.medium
-    }
+    },
+    cycleContainer:{
+        alignSelf: 'center',
+        width: '50%',
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 20,
+        paddingHorizontal: SIZES.small,
+        backgroundColor: COLORS.lightWhite,
+        borderRadius: SIZES.medium,
+        ...SHADOWS.medium,
+        marginBottom: 30,
+    },
 });
 
 export default styles;

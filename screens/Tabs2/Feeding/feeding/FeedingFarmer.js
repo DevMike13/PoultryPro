@@ -11,6 +11,7 @@ import { schedulePushNotification } from '../../../../utils/notification';
 import styles from './feeding.style';
 import firebase from '../../../../firebase';
 import { tr } from 'date-fns/locale';
+import { format, addDays, eachDayOfInterval } from 'date-fns';
 
 const FeedingFarmer = () => {
 
@@ -32,11 +33,16 @@ const FeedingFarmer = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  const [showDatePicker2, setShowDatePicker2] = useState(false);
+  const [selectedDate2, setSelectedDate2] = useState(new Date());
+
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
 
   // GET SCHEDULE DATE
   const [schedDateValue, setSchedDateValue] = useState("OFF");
   const [schedDurationValue, setSchedDurationValue] = useState(null);
+
+  const [schedArrayDates, setSchedArrayDates] = useState(null);
 
   const [sixAM, setSixAM] = useState(null);
   const [tenAM, setTenAM] = useState(null);
@@ -44,6 +50,26 @@ const FeedingFarmer = () => {
   const [tenPM, setTenPM] = useState(null);
 
   const [loading, setLoading] = useState(true);
+
+  const generateDateArray = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const dates = eachDayOfInterval({ start, end });
+
+    return dates.map(date => format(date, 'MM/dd/yyyy'));
+  };
+
+  const handleConfirmSchedule = () => {
+    // Generate the array of dates between the selected dates
+    const selectedDatesArray = generateDateArray(selectedDate, selectedDate2);
+    setSchedArrayDates(selectedDatesArray);
+    // Do something with the array, like storing it in state
+    console.log(selectedDatesArray);
+  };
+
+  const handlePushToRTDB = () =>{
+    firebase.database().ref('scheduleArrayDates').set(schedArrayDates);
+  };
 
   const currenSchedToast = () => {
     Toast.show({
@@ -161,6 +187,7 @@ const FeedingFarmer = () => {
     // Update the selected value in Firebase Realtime Database
     firebase.database().ref('scheduleDate').set(formatDate(selectedDate));
     firebase.database().ref('stateDuration').set(stateDurationValue);
+    
     // Update the values to On Going
     firebase.database().ref('6AM').set("Sched");
     firebase.database().ref('10AM').set("Sched");
@@ -168,6 +195,7 @@ const FeedingFarmer = () => {
     firebase.database().ref('10PM').set("Sched");
   };
 
+  
   const toggleManualVisibility = () => {
     setIsFilterVisible(!isFilterVisible);
   };
@@ -181,6 +209,17 @@ const FeedingFarmer = () => {
       setSelectedDate(selected);
     }
     setShowDatePicker(Platform.OS === 'ios');
+  };
+
+  const handleDateChange2 = (event, selected) => {
+    if (selected) {
+      setSelectedDate2(selected);
+    }
+    setShowDatePicker2(Platform.OS === 'ios');
+  };
+
+  const toggleDatePicker2 = () => {
+    setShowDatePicker2(!showDatePicker2);
   };
 
   const toggleDatePicker = () => {
@@ -327,7 +366,7 @@ const FeedingFarmer = () => {
     <SafeAreaView style={styles.container}>
       <ConfirmationModal/>
       <ScrollView showsVerticalScrollIndicator={true} contentContainerStyle={{ paddingVertical: 20 }}>
-        <TouchableOpacity style={styles.manualBtn} onPress={toggleManualVisibility}>
+        {/* <TouchableOpacity style={styles.manualBtn} onPress={toggleManualVisibility}>
         <Text style={styles.manualBtnText}>
           Manual Control
         </Text>
@@ -336,8 +375,8 @@ const FeedingFarmer = () => {
           size={20}
           color={COLORS.lightWhite}
         />
-        </TouchableOpacity>
-        { isFilterVisible && (
+        </TouchableOpacity> */}
+        {/* { isFilterVisible && (
           <Animated.View style={[styles.animatedContainer, filterStyle]}>
             <View style={styles.toggleContainer}>
               <Text style={styles.toggleText}>Watering</Text>
@@ -360,7 +399,7 @@ const FeedingFarmer = () => {
               />
             </View>
           </Animated.View>
-        )}
+        )} */}
 
         
        
@@ -532,6 +571,27 @@ const FeedingFarmer = () => {
               />
             )}
           </View>
+
+          {/* <View style={styles.dateContainer}>
+            <TouchableOpacity onPress={toggleDatePicker2} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 50, paddingVertical: 10, flexDirection: "row", gap: 15, borderRadius: SIZES.small, alignItems: "center" }}>
+              <Text style={{ fontFamily: FONT.medium, fontSize: SIZES.medium }}>
+                {formatDate(selectedDate2)}
+              </Text>
+              <Ionicons
+                name="calendar-outline"
+                size={30}
+              />
+            </TouchableOpacity>
+            {showDatePicker2 && (
+              <DateTimePicker
+                value={selectedDate2}
+                mode="date"
+                display="default"
+                minimumDate={(new Date().getTime() + 24 * 60 * 60 * 1000)}
+                onChange={handleDateChange2}
+              />
+            )}
+          </View> */}
           
           { schedDateValue == "OFF" && schedDurationValue == "OFF" ? (
             <TouchableOpacity style={styles.startBtn} onPress={handleConfirmModal}> 
@@ -546,6 +606,11 @@ const FeedingFarmer = () => {
               </Text>
             </TouchableOpacity>
           )}
+          {/* <TouchableOpacity style={styles.startBtn} onPress={() => {handleConfirmSchedule(); handlePushToRTDB();}}> 
+            <Text style={styles.startBtnText}>
+              Schedule
+            </Text>
+          </TouchableOpacity> */}
         </View>
       </ScrollView>
       <Toast position="bottom"/>

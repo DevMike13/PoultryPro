@@ -157,7 +157,7 @@ const LoginScreen = () => {
 
                 </View>
             </View>
-            <View style={{ width: "90%"}}>
+            {/* <View style={{ width: "90%"}}>
                 <View style={styles.regContainer}>
                     <View style={styles.regWrapper}>
                         <Text style={styles.regText}>I don't have an account?</Text>
@@ -166,7 +166,7 @@ const LoginScreen = () => {
                         <Text style={styles.regBtnText}>Register Now!</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </View> */}
             <View style={{ width: "70%" }}>
               <Text style={{ textAlign: "center", alignItems: "center", fontFamily: FONT.regular }}>
                   By opening the app you agree to PoultryPro's{' '}

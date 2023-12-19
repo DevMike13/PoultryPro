@@ -105,17 +105,18 @@ const Death = () => {
   return (
     <ScrollView showsVerticalScrollIndicator={true} contentContainerStyle={styles.scrollView}>
     <SafeAreaView style={styles.container}>
+      <ScrollView horizontal>
         <View style={styles.chartContainer}>
           <Text style={styles.headerTitle}>Mortality Rate</Text>
           { isLoading && batchNumbers.length <= 0 && batchMortalityData.length <= 0 ? (
             <ActivityIndicator size="large" color="blue" />
           ) : (
-            <View>
+              <>
               <LineChart
                 bezier
                 onDataPointClick={handleDataPointClick}
                 data={mortData}
-                width={390}
+                width={batchMortalityData.length * 100}
                 height={220}
                 yAxisLabel=""
                 yAxisSuffix=""
@@ -157,9 +158,10 @@ const Death = () => {
                   
                 </View>
               )}
-            </View>
+            </>
           )}   
         </View>
+        </ScrollView>
         <View style={{ width: "90%"}}>
           <DataTable>
             <DataTable.Header>
