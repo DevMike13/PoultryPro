@@ -19,37 +19,41 @@ const Death = () => {
   useEffect(() => {
     // Reference to the Firestore collection
     const collectionRef = firebase.firestore().collection('batch');
-
+  
     // Fetch the data
     collectionRef.get().then((querySnapshot) => {
       const batchNumbersArray = [];
-
+  
       querySnapshot.forEach((doc) => {
         const batchData = doc.data();
         const batchNo = batchData.batch_no;
         const formattedBatchNo = `Batch ${batchNo}`;
-        batchNumbersArray.push(formattedBatchNo);
+        batchNumbersArray.push({ original: formattedBatchNo, sorted: batchNo });
       });
-
-      // Set the state variable with the batch numbers array
-      setBatchNumbers(batchNumbersArray);
+  
+      // Sort batchNumbers based on batch_no
+      batchNumbersArray.sort((a, b) => a.sorted - b.sorted);
+  
+      // Set the state variable with the sorted batch numbers array
+      setBatchNumbers(batchNumbersArray.map((item) => item.original));
     });
   }, []);
+  
 
   
   useEffect(() => {
     // Reference to the Firestore collection
     const collectionRef = firebase.firestore().collection('mortality');
-
+  
     // Fetch the data and sort by batch_no
     collectionRef.orderBy('batch_no').get().then((querySnapshot) => {
       const batchMortalityMap = new Map();
-
+  
       querySnapshot.forEach((doc) => {
         const mortalityData = doc.data();
         const batchNo = mortalityData.batch_no;
         const mortalityCount = mortalityData.mortality_count;
-
+  
         if (batchMortalityMap.has(batchNo)) {
           const existingCount = batchMortalityMap.get(batchNo);
           batchMortalityMap.set(batchNo, existingCount + mortalityCount);
@@ -57,17 +61,18 @@ const Death = () => {
           batchMortalityMap.set(batchNo, mortalityCount);
         }
       });
-
+  
       // Extract the summed mortality counts from the map and sort them by batch_no
       const summedMortalityCounts = [...batchMortalityMap.values()].sort((a, b) =>
         batchMortalityMap.get(a) - batchMortalityMap.get(b)
       );
-
-      // Set the state variable with the summed mortality counts
+  
+      // Set the state variable with the sorted summed mortality counts
       setBatchMortalityData(summedMortalityCounts);
       setIsLoading(false);
+      console.log(batchMortalityData); 
     });
-  }, []);
+  }, []); 
 
   
   const mortData = {};

@@ -266,56 +266,61 @@ const Temp = () => {
           )}
         </View>
         
-        <View style={styles.chartContainer}>
-          <Text style={styles.headerTitle}>Temperature</Text>
-          { batchNo != null && maxTemperatures.length > 0 ? (
-            <LineChart
-              bezier
-              data={tempData}
-              width={390}
-              height={220}
-              yAxisLabel=""
-              yAxisSuffix={degreeSymbol}
-              chartConfig={{
-                backgroundColor: '#ffffff',
-                backgroundGradientFrom: '#ffffff',
-                backgroundGradientTo: '#ffffff',
-                decimalPlaces: 1,
-                color: (opacity = 1) => `rgba(230, 0, 0, ${opacity})`,
-              }}
-              style={styles.chart}
-            />
-          ) : (
-            <Text style={{ fontFamily: FONT.bold, marginVertical: 70 , alignSelf: 'center'}}>No Data Found.</Text>
-          )
-          }
-          
-        </View>
-        <View style={styles.chartContainer}>
-          <Text style={styles.headerTitle}>Humidity</Text>
-          { batchNo != null && maxHumidity.length > 0 ? (
-            <LineChart
-              bezier
-              data={humidData}
-              width={390}
-              height={220}
-              yAxisLabel=""
-              yAxisSuffix="%"
-              chartConfig={{
-                backgroundColor: '#ffffff',
-                backgroundGradientFrom: '#ffffff',
-                backgroundGradientTo: '#ffffff',
-                decimalPlaces: 1,
-                color: (opacity = 1) => `rgba(0, 0, 230, ${opacity})`,
-              }}
-              style={styles.chart}
-            />
-          ) : (
-            <Text style={{ fontFamily: FONT.bold, marginVertical: 70 , alignSelf: 'center'}}>No Data Found.</Text>
-          )
-          }
-          
-        </View>
+        <ScrollView horizontal={true}>
+          <View style={styles.chartContainer}>
+            <Text style={styles.headerTitle}>Temperature</Text>
+            { batchNo != null && maxTemperatures.length > 0 ? (
+              <LineChart
+                bezier
+                data={tempData}
+                width={maxTemperatures.length > 7 ? maxTemperatures.length * 100 : 390}
+                height={220}
+                yAxisLabel=""
+                yAxisSuffix={degreeSymbol}
+                chartConfig={{
+                  backgroundColor: '#ffffff',
+                  backgroundGradientFrom: '#ffffff',
+                  backgroundGradientTo: '#ffffff',
+                  decimalPlaces: 1,
+                  color: (opacity = 1) => `rgba(230, 0, 0, ${opacity})`,
+                }}
+                style={styles.chart}
+              />
+            ) : (
+              <Text style={{ fontFamily: FONT.bold, marginVertical: 70 , alignSelf: 'center', color: COLORS.tertiary}}>No Data Found.</Text>
+            )
+            }
+            
+          </View>
+        </ScrollView>
+
+        <ScrollView horizontal={true}>
+          <View style={styles.chartContainer}>
+            <Text style={styles.headerTitle}>Humidity</Text>
+            { batchNo != null && maxHumidity.length > 0 ? (
+              <LineChart
+                bezier
+                data={humidData}
+                width={maxHumidity.length > 7 ? maxHumidity.length * 100 : 390}
+                height={220}
+                yAxisLabel=""
+                yAxisSuffix="%"
+                chartConfig={{
+                  backgroundColor: '#ffffff',
+                  backgroundGradientFrom: '#ffffff',
+                  backgroundGradientTo: '#ffffff',
+                  decimalPlaces: 1,
+                  color: (opacity = 1) => `rgba(0, 0, 230, ${opacity})`,
+                }}
+                style={styles.chart}
+              />
+            ) : (
+              <Text style={{ fontFamily: FONT.bold, marginVertical: 70 , alignSelf: 'center', color: COLORS.tertiary}}>No Data Found.</Text>
+            )
+            }
+            
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </ScrollView>
   )

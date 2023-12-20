@@ -23,10 +23,13 @@ const Summary = () => {
   const [mortalityByDate, setMortalityByDate] = useState([]);
   const [tempHumidData, setTempHumidData] = useState([]);
 
+  const [highestTemperatures, setHighestTemperatures] = useState([]);
+
   const [cycleStarted, setCycleStarted] = useState(null);
   const [cycleEnded, setCycleEnded] = useState(null);
   const [cycleDuration, setCycleDuration] = useState(null);
 
+  // GET BATCH DATA
   useEffect(() => {
     // Fetch batch data when selectedValue changes
     if (selectedBatchNo) {
@@ -46,6 +49,7 @@ const Summary = () => {
     }
   }, [selectedBatchNo]);
 
+  // GET HARVEST DATA
   useEffect(() => {
     if (selectedBatchNo) {
       const harvestCollectionRef = firebase.firestore().collection('harvest');
@@ -70,6 +74,7 @@ const Summary = () => {
     }
   }, [selectedBatchNo]);
 
+  // GET MORTALITY COUNT PER BATCH
   useEffect(() => {
     if (selectedBatchNo) {
       const mortalityCollectionRef = firebase.firestore().collection('mortality');
@@ -106,6 +111,8 @@ const Summary = () => {
     }
   }, [selectedBatchNo]);
 
+
+  // GET HUMIDITY AND TEMPERATURE DATA
   useEffect(() => {
     if (selectedBatchNo) {
       const tempHumidCollectionRef = firebase.firestore().collection('temp&humid');
@@ -139,22 +146,11 @@ const Summary = () => {
     }
   }, [selectedBatchNo]);
 
-  
   // Use a separate useEffect to log the batchData
   useEffect(() => {
-    // console.log('Fetched batch data:', batchData);
-    console.log('Fetched batch data:', harvestedData);
     convertDate();
   }, [batchData]);
-  // useEffect(() => {
-  //   console.log('Total Mortality:', totalMortality);
-  //   console.log('Mortality by Date:', mortalityByDate);
-  // }, [totalMortality, mortalityByDate]);
-
-  useEffect(() => {
-    console.log('Temperature and Humidity Data:', tempHumidData);
-  }, [tempHumidData]);
-  
+ 
 
   useEffect(() => {
     // Reference to the Firestore collection
@@ -171,9 +167,9 @@ const Summary = () => {
         batchNumbersArray.push(formattedBatchNo);
       });
 
-      setBatchNumbers(batchNumbersArray);
+      setBatchNumbers(batchNumbersArray.slice(0, -1));
     });
-  }, []);
+  }, []); 
 
   useEffect(() => {
     // Reference to the Firestore collection
@@ -416,15 +412,14 @@ const Summary = () => {
               </DataTable.Row>
               <DataTable.Row>
                 <DataTable.Cell style={{ justifyContent: 'center', flex: 2 }}>Average Temperature</DataTable.Cell>
-                {Array.from({ length: mortalityByDate.length }, (_, index) => (
-                  <DataTable.Cell key={index + 1} style={{ justifyContent: 'center' }}>{`${index + Math.floor(Math.random() * (32 - 18 + 1)) + 18}°C`}</DataTable.Cell>
+                {tempHumidData.map((item, index) => (
+                  <DataTable.Cell key={index} style={{ justifyContent: 'center' }}>{`${item.temperature} °C`}</DataTable.Cell>
                 ))}
-                
               </DataTable.Row>
               <DataTable.Row>
                 <DataTable.Cell style={{ justifyContent: 'center', flex: 2 }}>Average Humidity</DataTable.Cell>
-                {Array.from({ length: mortalityByDate.length }, (_, index) => (
-                  <DataTable.Cell key={index + 1} style={{ justifyContent: 'center' }}>{`${index + Math.floor(Math.random() * (90 - 1 + 1)) + 1}%`}</DataTable.Cell>
+                {tempHumidData.map((item, index) => (
+                  <DataTable.Cell key={index} style={{ justifyContent: 'center' }}>{`${item.humidity}%`}</DataTable.Cell>
                 ))}
                 
               </DataTable.Row>
