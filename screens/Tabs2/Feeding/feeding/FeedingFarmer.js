@@ -82,7 +82,7 @@ const FeedingFarmer = () => {
   // GET SCHEDULES INDIVIDUALY
   useEffect(() => {
     // Set up Firebase real-time listeners
-    const schedDateRef = firebase.database().ref('scheduleDate');
+    // const schedDateRef = firebase.database().ref('scheduleDate');
     const schedDurationRef = firebase.database().ref('stateDuration');
 
     const sixAMRef = firebase.database().ref('6AM');
@@ -94,16 +94,16 @@ const FeedingFarmer = () => {
     setLoading(true);
 
     // Listen for changes in scheduleDate data
-    schedDateRef.on('value', (snapshot) => {
-      try {
-        const schedValue = snapshot.val();
-        setSchedDateValue(schedValue);
-        setLoading(false); // Stop loading when data is available
-      } catch (error) {
-        console.error('Error reading schedule:', error);
-        setLoading(false); // Stop loading in case of an error
-      }
-    });
+    // schedDateRef.on('value', (snapshot) => {
+    //   try {
+    //     const schedValue = snapshot.val();
+    //     setSchedDateValue(schedValue);
+    //     setLoading(false); // Stop loading when data is available
+    //   } catch (error) {
+    //     console.error('Error reading schedule:', error);
+    //     setLoading(false); // Stop loading in case of an error
+    //   }
+    // });
 
     // Listen for changes in stateDuration data
     schedDurationRef.on('value', (snapshot) => {
@@ -111,6 +111,7 @@ const FeedingFarmer = () => {
         const schedDuraValue = snapshot.val();
         setSchedDurationValue(schedDuraValue);
         setLoading(false); // Stop loading when data is available
+        console.log(schedDurationValue);
       } catch (error) {
         console.error('Error reading duration:', error);
         setLoading(false); // Stop loading in case of an error
@@ -169,7 +170,7 @@ const FeedingFarmer = () => {
     // Clean up the listeners when the component unmounts
     return () => {
       
-      schedDateRef.off();
+      // schedDateRef.off();
       schedDurationRef.off();
       sixAMRef.off();
       tenAMRef.off();
@@ -183,9 +184,9 @@ const FeedingFarmer = () => {
     console.log(stateDurationValue);
   };
 
-  const handleScheduleButtonPress = () => {
+  const handleScheduleButtonPress = (callback) => {
     // Update the selected value in Firebase Realtime Database
-    firebase.database().ref('scheduleDate').set(formatDate(selectedDate));
+    // firebase.database().ref('scheduleDate').set(formatDate(selectedDate));
     firebase.database().ref('stateDuration').set(stateDurationValue);
     
     // Update the values to On Going
@@ -193,8 +194,23 @@ const FeedingFarmer = () => {
     firebase.database().ref('10AM').set("Sched");
     firebase.database().ref('1PM').set("Sched");
     firebase.database().ref('10PM').set("Sched");
+
+    callback();
   };
 
+  const handleOffDailyFeeding = (callback) => {
+    // Update the selected value in Firebase Realtime Database
+    // firebase.database().ref('scheduleDate').set(formatDate(selectedDate));
+    firebase.database().ref('stateDuration').set("OFF");
+    
+    // Update the values to On Going
+    firebase.database().ref('6AM').set("Sched");
+    firebase.database().ref('10AM').set("Sched");
+    firebase.database().ref('1PM').set("Sched");
+    firebase.database().ref('10PM').set("Sched");
+
+    callback();
+  };
   
   const toggleManualVisibility = () => {
     setIsFilterVisible(!isFilterVisible);
@@ -238,6 +254,9 @@ const FeedingFarmer = () => {
   };
 
   const ConfirmationModal = () => {
+    const confirmationMessage =
+    stateDuration === "OFF" ? "Are you sure you want to ON Daily Feeding?" : "Are you sure you want to OFF Daily Feeding?";
+
     return (
       <Modal
         visible={isConfirmationModalVisible}
@@ -248,15 +267,23 @@ const FeedingFarmer = () => {
         {/* Modal content */}
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
+          
             <Text style={styles.modalText}>
-              Are you sure you want to set this schedule?
+            {confirmationMessage}
             </Text>
+           
+            
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.yesButton]}
                 onPress={() => {
-                  handleScheduleButtonPress();
-                  setIsConfirmationModalVisible(false);
+                  stateDuration === "OFF"
+                    ? handleScheduleButtonPress(() =>
+                        setIsConfirmationModalVisible(false)
+                      )
+                    : handleOffDailyFeeding(() =>
+                        setIsConfirmationModalVisible(false)
+                    );
                 }}
               >
                 <Text style={styles.modalButtonText}>Yes</Text>
@@ -548,10 +575,10 @@ const FeedingFarmer = () => {
               </View> 
           </RadioButton.Group>
           <View style={{ marginTop: 50 }}>
-            <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>Select Date: </Text>
+            <Text style={{ fontFamily: FONT.bold, fontSize: SIZES.large }}>Daily Feeding Status</Text>
             <View style={{ width: 120, height: 2, backgroundColor: COLORS.primary, marginTop: 5 }}></View>
           </View>
-          <View style={styles.dateContainer}>
+          {/* <View style={styles.dateContainer}>
             <TouchableOpacity onPress={toggleDatePicker} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 50, paddingVertical: 10, flexDirection: "row", gap: 15, borderRadius: SIZES.small, alignItems: "center" }}>
               <Text style={{ fontFamily: FONT.medium, fontSize: SIZES.medium }}>
                 {formatDate(selectedDate)}
@@ -570,7 +597,7 @@ const FeedingFarmer = () => {
                 onChange={handleDateChange}
               />
             )}
-          </View>
+          </View> */}
 
           {/* <View style={styles.dateContainer}>
             <TouchableOpacity onPress={toggleDatePicker2} style={{ backgroundColor: COLORS.gray2, paddingHorizontal: 50, paddingVertical: 10, flexDirection: "row", gap: 15, borderRadius: SIZES.small, alignItems: "center" }}>
@@ -593,16 +620,16 @@ const FeedingFarmer = () => {
             )}
           </View> */}
           
-          { schedDateValue == "OFF" && schedDurationValue == "OFF" ? (
+          { stateDuration == "OFF" ? (
             <TouchableOpacity style={styles.startBtn} onPress={handleConfirmModal}> 
               <Text style={styles.startBtnText}>
-                Schedule
+                OFF
               </Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity style={[styles.startBtn, { backgroundColor : COLORS.gray }]} onPress={currenSchedToast}> 
+            <TouchableOpacity style={[styles.startBtn, { backgroundColor : COLORS.gray }]} onPress={handleConfirmModal}> 
               <Text style={styles.startBtnText}>
-                Schedule
+                ON
               </Text>
             </TouchableOpacity>
           )}
