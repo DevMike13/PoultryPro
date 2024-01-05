@@ -242,7 +242,7 @@ const Summary = () => {
       const cycleExpectedEndDate = new Date(batchData.cycle_expected_end_date.seconds * 1000 + batchData.cycle_expected_end_date.nanoseconds / 1e6);
   
       const formatDate = (date) => {
-        const month = date.toLocaleString('default', { month: 'long' });
+        const month = date.toLocaleString('default', { month: 'short' });
         const day = date.getDate();
         const year = date.getFullYear();
         return `${month} ${day}`;
@@ -370,19 +370,19 @@ const Summary = () => {
           </View>
         )} 
         <ScrollView horizontal={true} style={{ height: 'auto'}}>
-          <View style={{width: mortalityByDate.length > 3 ? mortalityByDate.length*150 : 500}}>
+          <View style={{width: 5*85}}>
             <DataTable>
               <DataTable.Header>
-                <DataTable.Title style={{ justifyContent: 'center', flex: 1 }}>Batch Number</DataTable.Title>
-                <DataTable.Title style={{ justifyContent: 'center', flex: 3 }}>Duration</DataTable.Title>
-                <DataTable.Title style={{ justifyContent: 'center', flex: 1 }}>Total Reject</DataTable.Title>
-                <DataTable.Title style={{ justifyContent: 'center', flex: 1 }}>Total Harvest</DataTable.Title>
+                <DataTable.Title style={{ justifyContent: 'center', flex: 1 }}>Batch No.</DataTable.Title>
+                <DataTable.Title style={{ justifyContent: 'center', flex: 2 }}>Duration</DataTable.Title>
+                <DataTable.Title style={{ justifyContent: 'center', flex: 1 }}>Reject</DataTable.Title>
+                <DataTable.Title style={{ justifyContent: 'center', flex: 1 }}>Harvest</DataTable.Title>
                 <DataTable.Title style={{ justifyContent: 'center', flex: 1 }}>Mortality</DataTable.Title>
               </DataTable.Header>
 
               <DataTable.Row>
                 <DataTable.Cell style={{ justifyContent: 'center', flex: 1 }}>{selectedBatchNo}</DataTable.Cell>
-                <DataTable.Cell style={{ justifyContent: 'center', flex: 3 }}>{cycleStarted} - {cycleEnded}</DataTable.Cell>
+                <DataTable.Cell style={{ justifyContent: 'center', flex: 2 }}>{cycleStarted} - {cycleEnded}</DataTable.Cell>
                 {harvestedData.length > 0 && harvestedData[0].batch_no === selectedBatchNo && (
                   <>
                     <DataTable.Cell style={{ justifyContent: 'center', flex: 1 }}>{harvestedData[0].reject_chicken}</DataTable.Cell>
@@ -391,7 +391,12 @@ const Summary = () => {
                 )}
                 <DataTable.Cell style={{ justifyContent: 'center' }}>{ totalMortality }</DataTable.Cell>
               </DataTable.Row>
-
+            </DataTable>
+          </View>
+        </ScrollView>
+        <ScrollView horizontal={true} style={{ height: 'auto'}}>
+          <View style={{width: mortalityByDate.length > 3 ? mortalityByDate.length*150 : 500}}>
+            <DataTable>
               <DataTable.Header>
                 <DataTable.Title style={{ justifyContent: 'center' }}>Summary of Mortality</DataTable.Title>
               </DataTable.Header>

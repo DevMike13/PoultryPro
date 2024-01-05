@@ -19,35 +19,60 @@ const TermsAndConditionReadOnly = () => {
   return (
     <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-            <View style={styles.contentConatiner}>
+        <View style={styles.contentConatiner}>
                 <View style={{ justifyContent: "center", alignItems: "center", marginVertical: 20}}>
-                    <Text style={styles.title}>Terms and Conditions</Text>
+                    <Text style={styles.title}>Poultry Pro Mobile Application - Terms and Conditions</Text>
                 </View>
             
                 <View style={{ marginVertical: 10 }}>
-                    <Text><Text style={{fontFamily: FONT.bold}}>1. Acceptance of Terms:</Text>  By using the Poultrypro mobile application, you agree to comply with the following terms and conditions.</Text>
+                    <Text><Text style={{fontFamily: FONT.bold}}>1. Acceptance of Terms</Text>  By downloading, installing, or using the Poultry Pro mobile application ("the App"), you agree to comply with and be bound by these Terms and Conditions. If you do not agree with these terms, please refrain from using the App.</Text>
                 </View>
                 <View style={{ marginVertical: 10 }}>
-                    <Text><Text style={{fontFamily: FONT.bold}}>2. Usage:</Text>  Poultrypro is designed to provide information and resources related to poultry farming in Sariaya, Quezon. Users are advised to use the app for lawful and legitimate purposes only.</Text>
+                    <Text><Text style={{fontFamily: FONT.bold}}>2. User Accounts</Text></Text>
+                    <Text style={{marginLeft: 15, marginTop: 10}}>
+                        <Text style={{fontFamily: FONT.bold}}>a. Owners:</Text> The App allows poultry farm owner to visualize data related to their farm. Owners are responsible for maintaining the confidentiality of their account credentials and ensuring that all activities under their account comply with these terms.
+                    </Text>
+                    <Text style={{marginLeft: 15, marginTop: 10}}>
+                        <Text style={{fontFamily: FONT.bold}}>b. Caretakers:</Text> Caretakers can input data related to the poultry farm they manage. Caretakers are accountable for the accuracy and reliability of the data they enter into the App.
+                    </Text>
                 </View>
                 <View style={{ marginVertical: 10 }}>
-                    <Text><Text style={{fontFamily: FONT.bold}}>3. Information Accuracy:</Text> While we strive to provide accurate and updated information, we do not guarantee the accuracy, completeness, or reliability of any content within the application. Users should verify any critical information from other reliable sources before making business decisions.</Text>
+                    <Text><Text style={{fontFamily: FONT.bold}}>3. Data Privacy and Security</Text> </Text>
+                    <Text style={{marginLeft: 15, marginTop: 10}}>
+                        <Text style={{fontFamily: FONT.bold}}>a.</Text> Owners and Caretakers both acknowledge that data entered into the App may be stored and processed. The App employs industry-standard security measures to protect this data. However, users should be cautious about sharing sensitive information.
+                    </Text>
+                    <Text style={{marginLeft: 15, marginTop: 10}}>
+                        <Text style={{fontFamily: FONT.bold}}>b.</Text>  Poultry Pro retains the right to use anonymized and aggregated data for statistical and analytical purposes.
+                    </Text>
                 </View>
                 <View style={{ marginVertical: 10 }}>
-                    <Text><Text style={{fontFamily: FONT.bold}}>4. Privacy:</Text> We respect user privacy and handle personal data in accordance with our Privacy Policy. By using the app, you agree to the collection, use, and sharing of your information as outlined in the Privacy Policy.</Text>
+                    <Text><Text style={{fontFamily: FONT.bold}}>4. Responsibilities and Use of Data</Text> </Text>
+                    <Text style={{marginLeft: 15, marginTop: 10}}>
+                        <Text style={{fontFamily: FONT.bold}}>a. Owners:</Text>  The App provides data visualization tools for farm management. Owners are responsible for interpreting and utilizing the information provided by the App in their decision-making processes.
+                    </Text>
+                    <Text style={{marginLeft: 15, marginTop: 10}}>
+                        <Text style={{fontFamily: FONT.bold}}>b. Caretakers:</Text>  Caretakers must ensure the accuracy of data entered, promptly update information, and adhere to best practices in data management.
+                    </Text>
                 </View>
                 <View style={{ marginVertical: 10 }}>
-                    <Text><Text style={{fontFamily: FONT.bold}}>5. Intellectual Property:</Text> All content within the Poultrypro app, including but not limited to text, graphics, logos, and software, is the property of the app owners and protected by copyright and other intellectual property laws.</Text>
+                    <Text><Text style={{fontFamily: FONT.bold}}>5. Prohibited Activities</Text> Users must not engage in any activity that may harm the functionality or security of the App. This includes, but is not limited to, attempting to access restricted areas, introducing malicious code, or violating any applicable laws.</Text>
                 </View>
                 <View style={{ marginVertical: 10 }}>
-                    <Text><Text style={{fontFamily: FONT.bold}}>6. Prohibited Conduct:</Text> Users must not engage in any conduct that violates applicable laws, infringes on the rights of others, or disrupts the functionality of the app. This includes the use of any automated system or software to extract data from the application without explicit consent.</Text>
+                    <Text><Text style={{fontFamily: FONT.bold}}>6. Updates and Modifications</Text> Poultry Pro reserves the right to update or modify these terms at any time. Users will be notified of significant changes. Continued use of the App after modifications constitutes acceptance of the revised terms.</Text>
                 </View>
                 <View style={{ marginVertical: 10 }}>
-                    <Text><Text style={{fontFamily: FONT.bold}}>7. Governing Law:</Text> These terms and conditions shall be governed by and construed in accordance with the laws of the Philippines.</Text>
+                    <Text><Text style={{fontFamily: FONT.bold}}>7. Termination</Text> Poultry Pro may, at its discretion, terminate or suspend user accounts for violation of these terms or any unlawful activity.</Text>
+                </View>
+                <View style={{ marginVertical: 10 }}>
+                    <Text><Text style={{fontFamily: FONT.bold}}>8. Governing Law</Text> These terms and conditions are governed by and construed in accordance with the laws of the jurisdiction in which Poultry Pro operates.</Text>
                 </View>
 
                 <View style={{ marginVertical: 20 }}>
-                    <Text>By using the Poultrypro mobile application, you acknowledge that you have read, understood, and agreed to these terms and conditions.</Text>
+                    <Text>These terms and conditions are governed by and construed in accordance with the laws of the jurisdiction in which Poultry Pro operates.</Text>
+                </View>
+                <View style={{ marginVertical: 20 }}>
+                    <Text style={{fontFamily: FONT.bold}}>Contact Information:</Text>
+                    <Text>For any inquiries regarding these terms, please contact Poultry Pro at <Text style={{fontFamily: FONT.bold}}>Johnzen.jb@gmail.com</Text></Text>
                 </View>
             </View>
             <View style={styles.buttonContainer}>
